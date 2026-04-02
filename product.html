@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>V~Leaf Product</title>
+
+  <style>
+    body {
+      background:#0b0f0c;
+      color:white;
+      font-family: Arial;
+      padding:20px;
+    }
+
+    h1 {
+      color:#39FF14;
+      text-shadow:0 0 10px #39FF14;
+    }
+
+    img {
+      width:300px;
+    }
+
+    button {
+      background:#39FF14;
+      border:none;
+      padding:10px;
+      cursor:pointer;
+      margin-top:10px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div id="product"></div>
+
+<script type="module">
+import { supabase } from "./supabase.js"
+
+function getId() {
+  const params = new URLSearchParams(window.location.search)
+  return params.get("id")
+}
+
+async function loadProduct() {
+
+  const id = getId()
+
+  const { data } = await supabase
+    .from("products")
+    .select("*")
+    .eq("id", id)
+    .single()
+
+  document.getElementById("product").innerHTML = `
+    <h1>${data.name}</h1>
+    <img src="${data.image || ''}">
+    <p>Prix : $${data.price}</p>
+    <p>${data.description || ''}</p>
+
+    <button onclick="addToCart('${data.id}')">Ajouter au panier</button>
+  `
+}
+
+window.addToCart = function(id) {
+  alert("Ajouté au panier (prochaine étape)")
+}
+
+loadProduct()
+</script>
+
+</body>
+</html>

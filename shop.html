@@ -65,11 +65,13 @@ async function loadProducts() {
         <img src="${p.image || ''}">
         <h3>${p.name}</h3>
         <p>$${p.price}</p>
-        <button>Voir</button>
+        <button onclick="viewProduct('${p.id}')">Voir</button>
       </div>
     `
   })
-
+window.viewProduct = function(id) {
+  window.location.href = "product.html?id=" + id
+}
   document.getElementById("products").innerHTML = html
 }
 

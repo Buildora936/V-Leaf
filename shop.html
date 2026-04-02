@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>V~Leaf Shop</title>
+
+  <style>
+    body {
+      background:#0b0f0c;
+      color:white;
+      font-family: Arial;
+    }
+
+    h1 {
+      text-align:center;
+      color:#39FF14;
+      text-shadow:0 0 10px #39FF14;
+    }
+
+    .grid {
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:20px;
+      padding:20px;
+    }
+
+    .card {
+      border:1px solid #39FF14;
+      padding:10px;
+    }
+
+    img {
+      width:100%;
+    }
+
+    button {
+      background:#39FF14;
+      border:none;
+      padding:10px;
+      cursor:pointer;
+      width:100%;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>V~Leaf Store</h1>
+
+<div class="grid" id="products"></div>
+
+<script type="module">
+import { supabase } from "./supabase.js"
+
+async function loadProducts() {
+
+  const { data } = await supabase
+    .from("products")
+    .select("*")
+
+  let html = ""
+
+  data.forEach(p => {
+    html += `
+      <div class="card">
+        <img src="${p.image || ''}">
+        <h3>${p.name}</h3>
+        <p>$${p.price}</p>
+        <button>Voir</button>
+      </div>
+    `
+  })
+
+  document.getElementById("products").innerHTML = html
+}
+
+loadProducts()
+</script>
+
+</body>
+</html>

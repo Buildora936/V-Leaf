@@ -62,8 +62,27 @@ async function loadProduct() {
   `
 }
 
-window.addToCart = function(id) {
-  alert("Ajouté au panier (prochaine étape)")
+import { supabase } from "./supabase.js"
+
+window.addToCart = async function(product_id) {
+
+  const { data } = await supabase.auth.getUser()
+
+  if (!data.user) {
+    alert("Connecte-toi d'abord")
+    window.location.href = "login.html"
+    return
+  }
+
+  const user = data.user
+
+  await supabase.from("cart").insert({
+    user_id: user.id,
+    product_id: product_id,
+    quantity: 1
+  })
+
+  alert("Produit ajouté au panier")
 }
 
 loadProduct()

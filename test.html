@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test JetPrint</title>
+</head>
+
+<body>
+
+<h1>JetPrint Test</h1>
+
+<pre id="output"></pre>
+
+<script type="module">
+import { fetchProducts } from "./jetprint.js"
+
+async function run() {
+  const data = await fetchProducts()
+  document.getElementById("output").innerText =
+    JSON.stringify(data, null, 2)
+}
+
+run()
+</script>
+
+</body>
+</html>

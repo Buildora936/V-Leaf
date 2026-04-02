@@ -1,0 +1,9 @@
+export const CONFIG = {
+  SUPABASE_URL: "https://ztqorvunrwztxfcawmik.supabase.co",
+
+  SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp0cW9ydnVucnd6dHhmY2F3bWlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNDU4MDEsImV4cCI6MjA5MDcyMTgwMX0._71fomX1KgSa4G9g_aKyqdMfF8iBeT2DS6oN1aVFHlo",
+
+  JETPRINT_API_KEY: "MmWczjb1_AgRrPmV3_WMS",
+
+  JETPRINT_CLIENT_ID: "SpAL24QcYL0o3__FD0Gu5"
+}

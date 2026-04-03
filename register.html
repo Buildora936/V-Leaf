@@ -33,6 +33,10 @@
       padding:10px;
       cursor:pointer;
     }
+
+    a {
+      color:#39FF14;
+    }
   </style>
 </head>
 
@@ -44,12 +48,9 @@
   <input id="email" placeholder="Email">
   <input id="password" type="password" placeholder="Password">
 
-  <input id="name" placeholder="Full Name">
-  <input id="phone" placeholder="Phone">
-  <input id="country" placeholder="Country">
-  <input id="address" placeholder="Address">
-
   <button onclick="register()">Create Account</button>
+
+  <p>Déjà un compte ? <a href="login.html">Login</a></p>
 
   <p id="msg"></p>
 </div>
@@ -61,12 +62,7 @@ window.register = async function () {
   const email = document.getElementById("email").value
   const password = document.getElementById("password").value
 
-  const full_name = document.getElementById("name").value
-  const phone = document.getElementById("phone").value
-  const country = document.getElementById("country").value
-  const address = document.getElementById("address").value
-
-  const { data, error } = await supabase.auth.signUp({
+  const { error } = await supabase.auth.signUp({
     email,
     password
   })
@@ -76,17 +72,7 @@ window.register = async function () {
     return
   }
 
-  const user = data.user
-
-  await supabase.from("profiles").insert({
-    id: user.id,
-    full_name,
-    phone,
-    country,
-    address
-  })
-
-  document.getElementById("msg").innerText = "Account created!"
+  document.getElementById("msg").innerText = "Compte créé !"
 }
 </script>
 

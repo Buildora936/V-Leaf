@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>FAQ V~Leaf</title>
+
+  <!-- ICONES -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <style>
+    body {
+      margin:0;
+      font-family: Arial;
+      background: linear-gradient(135deg, #1f4037, #99f2c8);
+      color:#111;
+      padding:20px;
+      padding-bottom:80px;
+    }
+
+    h1 {
+      text-align:center;
+      margin-bottom:20px;
+    }
+
+    .faq {
+      background:white;
+      border-radius:15px;
+      margin-bottom:10px;
+      box-shadow:0 5px 15px rgba(0,0,0,0.1);
+      overflow:hidden;
+    }
+
+    .question {
+      padding:15px;
+      cursor:pointer;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      font-weight:bold;
+    }
+
+    .answer {
+      max-height:0;
+      overflow:hidden;
+      padding:0 15px;
+      transition:0.3s;
+    }
+
+    .faq.active .answer {
+      max-height:200px;
+      padding:15px;
+    }
+
+    .faq i {
+      color:#00c853;
+    }
+
+    /* NAV BAS */
+    .nav {
+      position:fixed;
+      bottom:0;
+      left:0;
+      width:100%;
+      background:#111;
+      display:flex;
+      justify-content:space-around;
+      padding:10px 0;
+    }
+
+    .nav a {
+      color:white;
+      text-decoration:none;
+      font-size:12px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+    }
+
+    .nav i {
+      font-size:18px;
+      color:#39FF14;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>FAQ</h1>
+
+<div class="faq">
+  <div class="question">
+    Livraison combien de temps ?
+    <i class="fa fa-chevron-down"></i>
+  </div>
+  <div class="answer">
+    5 à 10 jours selon votre localisation.
+  </div>
+</div>
+
+<div class="faq">
+  <div class="question">
+    Puis-je retourner un produit ?
+    <i class="fa fa-chevron-down"></i>
+  </div>
+  <div class="answer">
+    Oui, sous certaines conditions.
+  </div>
+</div>
+
+<div class="faq">
+  <div class="question">
+    Paiement sécurisé ?
+    <i class="fa fa-chevron-down"></i>
+  </div>
+  <div class="answer">
+    Oui, vos paiements sont sécurisés.
+  </div>
+</div>
+
+<!-- NAVIGATION BAS -->
+<div class="nav">
+  <a href="shop.html"><i class="fa fa-store"></i>Shop</a>
+  <a href="cart.html"><i class="fa fa-cart-shopping"></i>Cart</a>
+  <a href="orders.html"><i class="fa fa-box"></i>Orders</a>
+  <a href="profile.html"><i class="fa fa-user"></i>Profile</a>
+</div>
+
+<script>
+document.querySelectorAll(".faq").forEach(faq => {
+  faq.addEventListener("click", () => {
+    faq.classList.toggle("active")
+  })
+})
+</script>
+
+</body>
+</html>

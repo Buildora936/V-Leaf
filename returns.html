@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Returns V~Leaf</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <style>
+    body {
+      margin:0;
+      font-family: Arial;
+      background: linear-gradient(135deg, #1f4037, #99f2c8);
+      color:#111;
+      padding:20px;
+      padding-bottom:80px;
+    }
+
+    h1 {
+      text-align:center;
+      margin-bottom:20px;
+    }
+
+    .card {
+      background:white;
+      border-radius:15px;
+      padding:20px;
+      margin-bottom:15px;
+      box-shadow:0 5px 15px rgba(0,0,0,0.1);
+      animation: fadeIn 0.5s ease;
+    }
+
+    .card i {
+      color:#00c853;
+      margin-right:10px;
+    }
+
+    /* NAV */
+    .nav {
+      position:fixed;
+      bottom:0;
+      left:0;
+      width:100%;
+      background:#111;
+      display:flex;
+      justify-content:space-around;
+      padding:10px 0;
+    }
+
+    .nav a {
+      color:white;
+      text-decoration:none;
+      font-size:12px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+    }
+
+    .nav i {
+      font-size:18px;
+      color:#39FF14;
+    }
+
+    @keyframes fadeIn {
+      from {opacity:0; transform:translateY(10px);}
+      to {opacity:1; transform:translateY(0);}
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>Retours & Remboursements</h1>
+
+<div class="card">
+  <p><i class="fa fa-rotate-left"></i> Vous pouvez retourner un produit sous 7 jours après réception.</p>
+</div>
+
+<div class="card">
+  <p><i class="fa fa-box-open"></i> Le produit doit être non utilisé et en bon état.</p>
+</div>
+
+<div class="card">
+  <p><i class="fa fa-receipt"></i> Une preuve d’achat est requise.</p>
+</div>
+
+<div class="card">
+  <p><i class="fa fa-money-bill-wave"></i> Les remboursements sont traités sous 3 à 5 jours.</p>
+</div>
+
+<div class="card">
+  <p><i class="fa fa-headset"></i> Contactez-nous via WhatsApp pour toute demande.</p>
+</div>
+
+<!-- NAV -->
+<div class="nav">
+  <a href="shop.html"><i class="fa fa-store"></i>Shop</a>
+  <a href="cart.html"><i class="fa fa-cart-shopping"></i>Cart</a>
+  <a href="orders.html"><i class="fa fa-box"></i>Orders</a>
+  <a href="profile.html"><i class="fa fa-user"></i>Profile</a>
+</div>
+
+</body>
+</html>

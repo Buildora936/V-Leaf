@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>V~Leaf Profile</title>
+
+  <style>
+    body {
+      background:#0b0f0c;
+      color:white;
+      font-family: Arial;
+      padding:20px;
+      margin:0;
+    }
+
+    h1 {
+      color:#39FF14;
+      text-shadow:0 0 10px #39FF14;
+    }
+
+    .box {
+      border:1px solid #39FF14;
+      padding:20px;
+      margin-top:20px;
+    }
+
+    button {
+      background:#39FF14;
+      border:none;
+      padding:10px;
+      cursor:pointer;
+      width:100%;
+      margin-top:10px;
+    }
+
+    /* NAV BAS */
+    .nav {
+      position:fixed;
+      bottom:0;
+      left:0;
+      width:100%;
+      background:#111;
+      display:flex;
+      justify-content:space-around;
+      padding:10px 0;
+      border-top:1px solid #39FF14;
+    }
+
+    .nav a {
+      color:#39FF14;
+      text-decoration:none;
+      font-size:14px;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>Profil</h1>
+
+<div class="box">
+  <p id="email">Chargement...</p>
+  <button onclick="logout()">Logout</button>
+</div>
+
+<!-- NAVIGATION BAS -->
+<div class="nav">
+  <a href="shop.html">Shop</a>
+  <a href="cart.html">Cart</a>
+  <a href="orders.html">Orders</a>
+  <a href="profile.html">Profile</a>
+</div>
+
+<script type="module">
+import { supabase } from "./supabase.js"
+
+async function loadProfile() {
+  const { data } = await supabase.auth.getUser()
+
+  if (!data.user) {
+    document.getElementById("email").innerText = "Non connecté"
+    return
+  }
+
+  document.getElementById("email").innerText =
+    "Email : " + data.user.email
+}
+
+window.logout = async function() {
+  await supabase.auth.signOut()
+  window.location.href = "login.html"
+}
+
+loadProfile()
+</script>
+
+</body>
+</html>

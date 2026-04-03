@@ -3,29 +3,76 @@
 <head>
   <title>V~Leaf Orders</title>
 
+  <!-- ICONES -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
   <style>
     body {
-      background:#0b0f0c;
-      color:white;
+      margin:0;
       font-family: Arial;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color:white;
       padding:20px;
+      padding-bottom:80px;
     }
 
     h1 {
-      color:#39FF14;
-      text-shadow:0 0 10px #39FF14;
+      text-align:center;
+      margin-bottom:20px;
     }
 
     .order {
-      border:1px solid #39FF14;
-      margin:20px 0;
-      padding:10px;
+      background: rgba(255,255,255,0.05);
+      border-radius:15px;
+      padding:15px;
+      margin-bottom:15px;
+      backdrop-filter: blur(10px);
+      animation: fadeIn 0.5s ease;
     }
 
     .item {
-      margin-left:20px;
-      border-left:2px solid #39FF14;
-      padding-left:10px;
+      background: rgba(255,255,255,0.08);
+      border-radius:10px;
+      padding:10px;
+      margin-top:10px;
+    }
+
+    .status {
+      color:#39FF14;
+      font-weight:bold;
+    }
+
+    /* NAV BAS */
+    .nav {
+      position:fixed;
+      bottom:0;
+      left:0;
+      width:100%;
+      background:#111;
+      display:flex;
+      justify-content:space-around;
+      padding:10px 0;
+      border-top:1px solid #39FF14;
+    }
+
+    .nav a {
+      color:white;
+      text-decoration:none;
+      font-size:12px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+    }
+
+    .nav i {
+      font-size:18px;
+      margin-bottom:3px;
+      color:#39FF14;
+    }
+
+    @keyframes fadeIn {
+      from {opacity:0; transform:translateY(10px);}
+      to {opacity:1; transform:translateY(0);}
     }
   </style>
 </head>
@@ -35,6 +82,14 @@
 <h1>Mes Commandes</h1>
 
 <div id="orders"></div>
+
+<!-- NAVIGATION BAS -->
+<div class="nav">
+  <a href="shop.html"><i class="fa fa-store"></i>Shop</a>
+  <a href="cart.html"><i class="fa fa-cart-shopping"></i>Cart</a>
+  <a href="orders.html"><i class="fa fa-box"></i>Orders</a>
+  <a href="profile.html"><i class="fa fa-user"></i>Profile</a>
+</div>
 
 <script type="module">
 import { supabase } from "./supabase.js"
@@ -50,7 +105,6 @@ async function loadOrders() {
 
   const user = userData.user
 
-  // 1. récupérer commandes
   const { data: orders } = await supabase
     .from("orders")
     .select("*")
@@ -65,10 +119,9 @@ async function loadOrders() {
       <div class="order">
         <h3>Commande #${order.id}</h3>
         <p>Total : $${order.total}</p>
-        <p>Status : ${order.status}</p>
+        <p class="status">${order.status}</p>
     `
 
-    // 2. récupérer items de la commande
     const { data: items } = await supabase
       .from("order_items")
       .select("*")
@@ -84,7 +137,7 @@ async function loadOrders() {
 
       html += `
         <div class="item">
-          <p>${product.name}</p>
+          <p><b>${product.name}</b></p>
           <p>$${item.price} x ${item.quantity}</p>
         </div>
       `

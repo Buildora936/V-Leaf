@@ -115,23 +115,37 @@ async function loadCart() {
 
   const user = userData.user
 
-  const { data: cart } = await supabase
+  const { data, error } = await supabase
     .from("cart")
-    .select("*")
+    .select(`
+      id,
+      quantity,
+      size,
+      products (
+        id,
+        name,
+        price,
+        image
+      )
+    `)
     .eq("user_id", user.id)
 
-  cartItems = cart || []
+  if (error) {
+    console.error(error)
+    document.getElementById("cart").innerText = "Error loading cart"
+    return
+  }
+
+  cartItems = data || []
 
   let html = ""
   let total = 0
 
-  for (let item of cartItems) {
+  cartItems.forEach(item => {
 
-    const { data: product } = await supabase
-      .from("products")
-      .select("*")
-      .eq("id", item.product_id)
-      .single()
+    const product = item.products
+
+    if (!product) return
 
     const subtotal = product.price * item.quantity
     total += subtotal
@@ -154,9 +168,9 @@ async function loadCart() {
         </div>
       </div>
     `
-  }
+  })
 
-  document.getElementById("cart").innerHTML = html
+  document.getElementById("cart").innerHTML = html || "Cart empty"
   document.getElementById("total").innerText = "Total: $" + total
 }
 

@@ -39,7 +39,7 @@ nav a {
 
 /* HERO */
 .hero {
-  height: 90vh;
+  height: 85vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -50,6 +50,7 @@ nav a {
 .hero h1 {
   font-size: 64px;
   max-width: 600px;
+  line-height: 1.1;
 }
 
 .hero button {
@@ -60,9 +61,14 @@ nav a {
   font-weight: bold;
   cursor: pointer;
   border-radius: 50px;
+  transition: 0.3s;
 }
 
-/* SECTION */
+.hero button:hover {
+  transform: scale(1.05);
+}
+
+/* TITLE */
 .section-title {
   font-size: 30px;
   margin: 80px 10% 30px;
@@ -93,8 +99,11 @@ nav a {
 
 .card img {
   width: 100%;
-  height: 250px;
-  object-fit: cover;
+  transition: 0.4s;
+}
+
+.card:hover img {
+  transform: scale(1.05);
 }
 
 .card-content {
@@ -108,6 +117,22 @@ nav a {
 .card p {
   margin-top: 5px;
   color: #666;
+}
+
+/* LOADING */
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #999;
+}
+
+/* BANNER */
+.banner {
+  margin: 100px 10%;
+  padding: 70px;
+  border-radius: 30px;
+  background: linear-gradient(135deg, black, #1a1a1a);
+  color: white;
 }
 
 /* FOOTER */
@@ -142,62 +167,68 @@ footer {
 <!-- PRODUCTS -->
 <h2 class="section-title">Latest Drops</h2>
 
-<div class="products" id="product-list">
-  <!-- PRODUITS DYNAMIQUES -->
+<div class="products" id="products">
+  <div class="loading">Loading products...</div>
 </div>
+
+<!-- BANNER -->
+<section class="banner">
+  <h2>Premium Quality. Accessible Price.</h2>
+  <p>Designed for those who move different.</p>
+</section>
 
 <!-- FOOTER -->
 <footer>
   <p>© 2026 V~Leaf</p>
 </footer>
 
+<!-- SCRIPT SUPABASE -->
 <script type="module">
-import { getAllProducts } from "./data.js";
+import { supabase } from "./supabase.js"
 
-function goShop(){
-  window.location.href = "shop.html";
-}
+async function loadProducts() {
 
-function goProduct(id){
-  window.location.href = "product.html?id=" + id;
-}
+  const { data, error } = await supabase
+    .from("products")
+    .select("*")
+    .limit(6)
 
-/* LOAD PRODUITS */
-async function loadProducts(){
-  const container = document.getElementById("product-list");
+  if(error){
+    document.getElementById("products").innerHTML = "Error loading products"
+    return
+  }
 
-  container.innerHTML = "Loading...";
+  if(!data || data.length === 0){
+    document.getElementById("products").innerHTML = "No products yet"
+    return
+  }
 
-  try {
-    const { jetprint, manual } = await getAllProducts();
+  let html = ""
 
-    // Combine les produits
-    const products = [
-      ...(manual || [])
-    ];
-
-    if(products.length === 0){
-      container.innerHTML = "<p style='padding:20px'>No products yet</p>";
-      return;
-    }
-
-    container.innerHTML = products.map(p => `
-      <div class="card" onclick="goProduct('${p.id}')">
-        <img src="${p.image_url}">
+  data.forEach(p => {
+    html += `
+      <div class="card" onclick="viewProduct('${p.id}')">
+        <img src="${p.image || ''}">
         <div class="card-content">
           <h3>${p.name}</h3>
           <p>$${p.price}</p>
         </div>
       </div>
-    `).join("");
+    `
+  })
 
-  } catch(err){
-    console.error(err);
-    container.innerHTML = "<p>Error loading products</p>";
-  }
+  document.getElementById("products").innerHTML = html
 }
 
-loadProducts();
+window.viewProduct = function(id) {
+  window.location.href = "product.html?id=" + id
+}
+
+function goShop(){
+  window.location.href = "shop.html"
+}
+
+loadProducts()
 </script>
 
 </body>

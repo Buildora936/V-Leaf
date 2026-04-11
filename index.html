@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>V~Leaf</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #fff;
+      color: #000;
+    }
+
+    /* NAVBAR */
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 30px;
+      border-bottom: 1px solid #eee;
+    }
+
+    nav img {
+      height: 40px;
+    }
+
+    nav a {
+      margin-left: 20px;
+      text-decoration: none;
+      color: black;
+      font-weight: bold;
+    }
+
+    /* HERO */
+    .hero {
+      text-align: center;
+      padding: 80px 20px;
+    }
+
+    .hero h1 {
+      font-size: 40px;
+      margin-bottom: 20px;
+    }
+
+    .hero button {
+      padding: 15px 30px;
+      border: none;
+      background: #39FF14;
+      color: black;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    /* PRODUCT */
+    .product {
+      text-align: center;
+      padding: 50px 20px;
+    }
+
+    .product img {
+      max-width: 300px;
+    }
+
+    .product h2 {
+      margin: 10px 0;
+    }
+
+    .product button {
+      padding: 12px 25px;
+      border: none;
+      background: black;
+      color: white;
+      cursor: pointer;
+    }
+
+    /* FOOTER */
+    footer {
+      text-align: center;
+      padding: 30px;
+      border-top: 1px solid #eee;
+      margin-top: 50px;
+    }
+
+    @media(max-width: 600px) {
+      .hero h1 {
+        font-size: 28px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- NAVBAR -->
+  <nav>
+    <div>
+      <img src="V-Leaf logo.png">
+    </div>
+
+    <div>
+      <a href="shop.html">Shop</a>
+      <a href="about.html">About</a>
+      <a href="contact.html">Contact</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <h1>Elevate Every Step.</h1>
+    <button onclick="goShop()">Shop Now</button>
+  </section>
+
+  <!-- PRODUCT -->
+  <section class="product">
+    <img src="https://ztqorvunrwztxfcawmik.supabase.co/storage/v1/object/sign/V-Leaf-image/787c51b9d39b4d96b4879d0b8a422464.jpg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82OTAwNzU1ZS1iNWQ1LTQ0MDctOTRlYy0zYTMxOTk1NWRhNmQiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJWLUxlYWYtaW1hZ2UvNzg3YzUxYjlkMzliNGQ5NmI0ODc5ZDBiOGE0MjI0NjQuanBnIiwiaWF0IjoxNzc1OTEyMzAwLCJleHAiOjMzMzExOTEyMzAwfQ.i2QS2ESDj5BfxglTl667G-GEGuGYeJ9vHTDX9h7_XNY">
+    <h2>V~Leaf Track 2</h2>
+    <p>$65</p>
+    <button onclick="viewProduct()">View Product</button>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>© 2026 V~Leaf. All rights reserved.</p>
+  </footer>
+
+  <script>
+    function goShop() {
+      window.location.href = "shop.html";
+    }
+
+    function viewProduct() {
+      window.location.href = "product.html?id=1";
+    }
+  </script>
+
+</body>
+</html>

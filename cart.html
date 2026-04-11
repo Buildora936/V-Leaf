@@ -1,46 +1,103 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>V~Leaf Cart</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cart - V~Leaf</title>
 
-  <style>
-    body {
-      background:#0b0f0c;
-      color:white;
-      font-family: Arial;
-      padding:20px;
-    }
+<style>
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #fff;
+}
 
-    h1 {
-      color:#39FF14;
-      text-shadow:0 0 10px #39FF14;
-    }
+/* NAV */
+nav {
+  padding: 15px 30px;
+  border-bottom: 1px solid #eee;
+}
 
-    .item {
-      border:1px solid #39FF14;
-      padding:10px;
-      margin:10px 0;
-    }
+/* CONTAINER */
+.container {
+  padding: 30px 10%;
+}
 
-    button {
-      background:#39FF14;
-      border:none;
-      padding:10px;
-      cursor:pointer;
-      margin-top:10px;
-    }
-  </style>
+/* ITEM */
+.item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #eee;
+  padding: 15px 0;
+}
+
+.item img {
+  width: 70px;
+  border-radius: 10px;
+}
+
+/* INFO */
+.info {
+  flex: 1;
+  margin-left: 15px;
+}
+
+/* ACTIONS */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.actions input {
+  width: 50px;
+}
+
+/* BUTTON */
+button {
+  padding: 12px;
+  border: none;
+  background: #39FF14;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 20px;
+}
+
+/* REMOVE */
+.remove {
+  background: black;
+  color: white;
+}
+
+/* TOTAL */
+.total {
+  margin-top: 20px;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+/* CHECKOUT */
+.checkout {
+  margin-top: 20px;
+  width: 100%;
+}
+</style>
 </head>
 
 <body>
 
-<h1>Mon Panier</h1>
+<nav>
+  <strong>Cart</strong>
+</nav>
 
-<div id="cart"></div>
+<div class="container">
+  <div id="cart">Loading...</div>
 
-<h2 id="total"></h2>
+  <div class="total" id="total"></div>
 
-<button onclick="checkout()">Commander</button>
+  <button class="checkout" onclick="checkout()">Checkout</button>
+</div>
 
 <script type="module">
 import { supabase } from "./supabase.js"
@@ -52,7 +109,7 @@ async function loadCart() {
   const { data: userData } = await supabase.auth.getUser()
 
   if (!userData.user) {
-    document.getElementById("cart").innerText = "Connecte-toi"
+    document.getElementById("cart").innerText = "Login required"
     return
   }
 
@@ -63,12 +120,12 @@ async function loadCart() {
     .select("*")
     .eq("user_id", user.id)
 
-  cartItems = cart
+  cartItems = cart || []
 
   let html = ""
   let total = 0
 
-  for (let item of cart) {
+  for (let item of cartItems) {
 
     const { data: product } = await supabase
       .from("products")
@@ -76,31 +133,64 @@ async function loadCart() {
       .eq("id", item.product_id)
       .single()
 
-    total += product.price * item.quantity
+    const subtotal = product.price * item.quantity
+    total += subtotal
 
     html += `
       <div class="item">
-        <h3>${product.name}</h3>
-        <p>$${product.price}</p>
+        <img src="${product.image || ''}">
+
+        <div class="info">
+          <h4>${product.name}</h4>
+          <p>$${product.price}</p>
+          <p>Size: ${item.size || "-"}</p>
+        </div>
+
+        <div class="actions">
+          <input type="number" value="${item.quantity}" min="1"
+            onchange="updateQty('${item.id}', this.value)">
+
+          <button class="remove" onclick="removeItem('${item.id}')">X</button>
+        </div>
       </div>
     `
   }
 
   document.getElementById("cart").innerHTML = html
-  document.getElementById("total").innerText = "Total : $" + total
+  document.getElementById("total").innerText = "Total: $" + total
 }
 
+/* UPDATE QTY */
+window.updateQty = async function(id, qty) {
+  await supabase
+    .from("cart")
+    .update({ quantity: qty })
+    .eq("id", id)
+
+  loadCart()
+}
+
+/* REMOVE */
+window.removeItem = async function(id) {
+  await supabase
+    .from("cart")
+    .delete()
+    .eq("id", id)
+
+  loadCart()
+}
+
+/* CHECKOUT */
 window.checkout = async function() {
 
   const { data: userData } = await supabase.auth.getUser()
   const user = userData.user
 
   if (!user) {
-    alert("Connecte-toi")
+    alert("Login required")
     return
   }
 
-  // 1. calcul total
   let total = 0
 
   for (let item of cartItems) {
@@ -113,7 +203,7 @@ window.checkout = async function() {
     total += product.price * item.quantity
   }
 
-  // 2. créer commande
+  // CREATE ORDER
   const { data: order } = await supabase
     .from("orders")
     .insert({
@@ -124,7 +214,7 @@ window.checkout = async function() {
     .select()
     .single()
 
-  // 3. ajouter produits dans order_items
+  // ORDER ITEMS
   for (let item of cartItems) {
 
     const { data: product } = await supabase
@@ -137,19 +227,28 @@ window.checkout = async function() {
       order_id: order.id,
       product_id: item.product_id,
       quantity: item.quantity,
-      price: product.price
+      price: product.price,
+      size: item.size
     })
   }
 
-  // 4. vider panier
+  // CLEAR CART
   await supabase
     .from("cart")
     .delete()
     .eq("user_id", user.id)
 
-  alert("Commande créée !")
+  // WHATSAPP MESSAGE
+  let message = "Hello, I want to pay this order:%0A"
 
-  loadCart()
+  for (let item of cartItems) {
+    message += `Product ID: ${item.product_id} Qty: ${item.quantity}%0A`
+  }
+
+  message += `Total: $${total}%0AOrder ID: ${order.id}`
+
+  window.location.href =
+    "https://wa.me/50941040511?text=" + message
 }
 
 loadCart()

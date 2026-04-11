@@ -1,139 +1,197 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>V~Leaf</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>V~Leaf</title>
 
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #fff;
-      color: #000;
-    }
+<style>
+body {
+  margin: 0;
+  font-family: 'Arial', sans-serif;
+  background: #fff;
+  color: #000;
+}
 
-    /* NAVBAR */
-    nav {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 15px 30px;
-      border-bottom: 1px solid #eee;
-    }
+/* NAVBAR */
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
+}
 
-    nav img {
-      height: 40px;
-    }
+nav img {
+  height: 40px;
+}
 
-    nav a {
-      margin-left: 20px;
-      text-decoration: none;
-      color: black;
-      font-weight: bold;
-    }
+nav a {
+  margin-left: 25px;
+  text-decoration: none;
+  color: black;
+  font-weight: 600;
+}
 
-    /* HERO */
-    .hero {
-      text-align: center;
-      padding: 80px 20px;
-    }
+/* HERO */
+.hero {
+  height: 90vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 10%;
+}
 
-    .hero h1 {
-      font-size: 40px;
-      margin-bottom: 20px;
-    }
+.hero h1 {
+  font-size: 60px;
+  max-width: 600px;
+}
 
-    .hero button {
-      padding: 15px 30px;
-      border: none;
-      background: #39FF14;
-      color: black;
-      font-weight: bold;
-      cursor: pointer;
-    }
+.hero button {
+  margin-top: 20px;
+  padding: 15px 30px;
+  border: none;
+  background: #39FF14;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 30px;
+}
 
-    /* PRODUCT */
-    .product {
-      text-align: center;
-      padding: 50px 20px;
-    }
+/* SECTION TITLE */
+.section-title {
+  font-size: 28px;
+  margin: 60px 10%;
+}
 
-    .product img {
-      max-width: 300px;
-    }
+/* PRODUCT GRID */
+.products {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 30px;
+  padding: 0 10%;
+}
 
-    .product h2 {
-      margin: 10px 0;
-    }
+/* CARD */
+.card {
+  background: #f9f9f9;
+  border-radius: 20px;
+  padding: 20px;
+  transition: 0.3s;
+  cursor: pointer;
+}
 
-    .product button {
-      padding: 12px 25px;
-      border: none;
-      background: black;
-      color: white;
-      cursor: pointer;
-    }
+.card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+}
 
-    /* FOOTER */
-    footer {
-      text-align: center;
-      padding: 30px;
-      border-top: 1px solid #eee;
-      margin-top: 50px;
-    }
+.card img {
+  width: 100%;
+  border-radius: 15px;
+}
 
-    @media(max-width: 600px) {
-      .hero h1 {
-        font-size: 28px;
-      }
-    }
-  </style>
+.card h3 {
+  margin: 10px 0 5px;
+}
+
+.card p {
+  color: #555;
+}
+
+/* BANNER */
+.banner {
+  margin: 80px 10%;
+  padding: 60px;
+  background: black;
+  color: white;
+  border-radius: 25px;
+}
+
+.banner h2 {
+  font-size: 32px;
+}
+
+/* FOOTER */
+footer {
+  margin-top: 80px;
+  padding: 40px;
+  text-align: center;
+  border-top: 1px solid #eee;
+}
+
+/* MOBILE */
+@media(max-width: 600px){
+  .hero h1 {
+    font-size: 36px;
+  }
+}
+</style>
 </head>
 
 <body>
 
-  <!-- NAVBAR -->
-  <nav>
-    <div>
-      <img src="V-Leaf logo.png">
+<!-- NAVBAR -->
+<nav>
+  <img src="V-Leaf logo.png">
+
+  <div>
+    <a href="shop.html">Shop</a>
+    <a href="about.html">About</a>
+    <a href="contact.html">Contact</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <h1>Elevate Every Step.</h1>
+  <button onclick="goShop()">Shop Now</button>
+</section>
+
+<!-- PRODUCTS (VIDE - connecté plus tard) -->
+<h2 class="section-title">Latest Drops</h2>
+
+<div class="products" id="product-list">
+  <!-- PRODUITS VIENDRONT DE SUPABASE -->
+</div>
+
+<!-- BANNER -->
+<section class="banner">
+  <h2>Premium Quality. Accessible Price.</h2>
+  <p>Designed for those who move different.</p>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>© 2026 V~Leaf</p>
+</footer>
+
+<script>
+function goShop(){
+  window.location.href = "shop.html";
+}
+
+/* FUTUR SUPABASE */
+function loadProducts(products){
+  const container = document.getElementById("product-list");
+
+  container.innerHTML = products.map(p => `
+    <div class="card" onclick="goProduct(${p.id})">
+      <img src="${p.image}">
+      <h3>${p.name}</h3>
+      <p>$${p.price}</p>
     </div>
+  `).join('');
+}
 
-    <div>
-      <a href="shop.html">Shop</a>
-      <a href="about.html">About</a>
-      <a href="contact.html">Contact</a>
-    </div>
-  </nav>
+function goProduct(id){
+  window.location.href = "product.html?id=" + id;
+}
 
-  <!-- HERO -->
-  <section class="hero">
-    <h1>Elevate Every Step.</h1>
-    <button onclick="goShop()">Shop Now</button>
-  </section>
-
-  <!-- PRODUCT -->
-  <section class="product">
-    <img src="https://ztqorvunrwztxfcawmik.supabase.co/storage/v1/object/sign/V-Leaf-image/787c51b9d39b4d96b4879d0b8a422464.jpg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82OTAwNzU1ZS1iNWQ1LTQ0MDctOTRlYy0zYTMxOTk1NWRhNmQiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJWLUxlYWYtaW1hZ2UvNzg3YzUxYjlkMzliNGQ5NmI0ODc5ZDBiOGE0MjI0NjQuanBnIiwiaWF0IjoxNzc1OTEyMzAwLCJleHAiOjMzMzExOTEyMzAwfQ.i2QS2ESDj5BfxglTl667G-GEGuGYeJ9vHTDX9h7_XNY">
-    <h2>V~Leaf Track 2</h2>
-    <p>$65</p>
-    <button onclick="viewProduct()">View Product</button>
-  </section>
-
-  <!-- FOOTER -->
-  <footer>
-    <p>© 2026 V~Leaf. All rights reserved.</p>
-  </footer>
-
-  <script>
-    function goShop() {
-      window.location.href = "shop.html";
-    }
-
-    function viewProduct() {
-      window.location.href = "product.html?id=1";
-    }
-  </script>
+/* POUR TEST (à supprimer plus tard)
+loadProducts([
+  {id:1, name:"Test Shoe", price:65, image:"https://via.placeholder.com/300"}
+]);
+*/
+</script>
 
 </body>
 </html>

@@ -1,52 +1,156 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>V~Leaf Shop</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>V~Leaf</title>
 
-  <style>
-    body {
-      background:#0b0f0c;
-      color:white;
-      font-family: Arial;
-    }
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f5f5f5;
+}
 
-    h1 {
-      text-align:center;
-      color:#39FF14;
-      text-shadow:0 0 10px #39FF14;
-    }
+/* NAVBAR */
+nav {
+  background: white;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
-    .grid {
-      display:grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap:20px;
-      padding:20px;
-    }
+nav img {
+  height: 35px;
+}
 
-    .card {
-      border:1px solid #39FF14;
-      padding:10px;
-    }
+nav a {
+  margin-left: 15px;
+  text-decoration: none;
+  color: black;
+  font-weight: bold;
+}
 
-    img {
-      width:100%;
-    }
+/* HERO BANNER */
+.hero {
+  background: black;
+  color: white;
+  padding: 30px 20px;
+}
 
-    button {
-      background:#39FF14;
-      border:none;
-      padding:10px;
-      cursor:pointer;
-      width:100%;
-    }
-  </style>
+.hero h1 {
+  margin: 0;
+}
+
+.hero button {
+  margin-top: 10px;
+  padding: 10px 20px;
+  border: none;
+  background: #39FF14;
+  font-weight: bold;
+}
+
+/* SECTION */
+.section-title {
+  padding: 15px;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+/* GRID TEMU */
+.products {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  padding: 10px;
+}
+
+/* CARD TEMU */
+.card {
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+}
+
+.card img {
+  width: 100%;
+}
+
+/* BADGE */
+.badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: #39FF14;
+  padding: 3px 6px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+/* CONTENT */
+.card-content {
+  padding: 10px;
+}
+
+.card h3 {
+  font-size: 14px;
+  margin: 0;
+}
+
+.price {
+  color: black;
+  font-weight: bold;
+}
+
+.old-price {
+  text-decoration: line-through;
+  color: #888;
+  font-size: 12px;
+  margin-left: 5px;
+}
+
+/* FOOTER */
+footer {
+  background: white;
+  text-align: center;
+  padding: 20px;
+  margin-top: 20px;
+}
+</style>
 </head>
 
 <body>
 
-<h1>V~Leaf Store</h1>
+<!-- NAV -->
+<nav>
+  <img src="V-Leaf logo.png">
 
-<div class="grid" id="products"></div>
+  <div>
+    <a href="shop.html">Shop</a>
+    <a href="cart.html">Cart</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <h1>Flash Deals</h1>
+  <p>Premium style. Better price.</p>
+  <button onclick="goShop()">Shop Now</button>
+</div>
+
+<!-- PRODUCTS -->
+<div class="section-title">Trending Now</div>
+
+<div class="products" id="products">
+  Loading...
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p>© 2026 V~Leaf</p>
+</footer>
 
 <script type="module">
 import { supabase } from "./supabase.js"
@@ -57,22 +161,38 @@ async function loadProducts() {
     .from("products")
     .select("*")
 
+  if(!data){
+    document.getElementById("products").innerHTML = "No products"
+    return
+  }
+
   let html = ""
 
   data.forEach(p => {
     html += `
-      <div class="card">
+      <div class="card" onclick="viewProduct('${p.id}')">
+        <div class="badge">HOT</div>
         <img src="${p.image || ''}">
-        <h3>${p.name}</h3>
-        <p>$${p.price}</p>
-        <button onclick="viewProduct('${p.id}')">Voir</button>
+        <div class="card-content">
+          <h3>${p.name}</h3>
+          <div>
+            <span class="price">$${p.price}</span>
+            <span class="old-price">$${p.price * 1.3}</span>
+          </div>
+        </div>
       </div>
     `
   })
-window.viewProduct = function(id) {
+
+  document.getElementById("products").innerHTML = html
+}
+
+window.viewProduct = function(id){
   window.location.href = "product.html?id=" + id
 }
-  document.getElementById("products").innerHTML = html
+
+function goShop(){
+  window.location.href = "shop.html"
 }
 
 loadProducts()

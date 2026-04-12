@@ -115,37 +115,25 @@ async function loadCart() {
 
   const user = userData.user
 
-  const { data, error } = await supabase
+  const { data: cart } = await supabase
     .from("cart")
-    .select(`
-      id,
-      quantity,
-      size,
-      products (
-        id,
-        name,
-        price,
-        image
-      )
-    `)
+    .select("*")
     .eq("user_id", user.id)
 
-  if (error) {
-    console.error(error)
-    document.getElementById("cart").innerText = "Error loading cart"
-    return
-  }
-
-  cartItems = data || []
+  cartItems = cart || []
 
   let html = ""
   let total = 0
 
-  cartItems.forEach(item => {
+  for (let item of cartItems) {
 
-    const product = item.products
+    const { data: product } = await supabase
+      .from("products")
+      .select("*")
+      .eq("id", item.product_id)
+      .single()
 
-    if (!product) return
+    if (!product) continue
 
     const subtotal = product.price * item.quantity
     total += subtotal
@@ -164,16 +152,15 @@ async function loadCart() {
           <input type="number" value="${item.quantity}" min="1"
             onchange="updateQty('${item.id}', this.value)">
 
-          <button class="remove" onclick="removeItem('${item.id}')">X</button>
+          <button onclick="removeItem('${item.id}')">X</button>
         </div>
       </div>
     `
-  })
+  }
 
   document.getElementById("cart").innerHTML = html || "Cart empty"
   document.getElementById("total").innerText = "Total: $" + total
 }
-
 /* UPDATE QTY */
 window.updateQty = async function(id, qty) {
   await supabase

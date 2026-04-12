@@ -130,7 +130,7 @@ async function loadCart() {
     const { data: product } = await supabase
       .from("products")
       .select("*")
-      .eq("id", item.product_id)
+      .eq("id", item.product_id || item.products?.id)
       .single()
 
     if (!product) continue

@@ -210,26 +210,34 @@ window.addToCart = async function(product_id) {
     return
   }
 
-  const qty = document.getElementById("qty").value
+  const qty = parseInt(document.getElementById("qty").value)
 
-  const { data } = await supabase.auth.getUser()
+  const { data: userData, error: userError } = await supabase.auth.getUser()
 
-  if (!data.user) {
+  if (userError || !userData.user) {
     alert("Login required")
     window.location.href = "login.html"
     return
   }
 
-  const user = data.user
+  const user = userData.user
 
-  await supabase.from("cart").insert({
-  user_id: user.id,
-  product_id: product_id,
-  quantity: qty,
-  size: selectedSize
-}).then(res => console.log(res))
+  const { error } = await supabase
+    .from("cart")
+    .insert({
+      user_id: user.id,
+      product_id: product_id,
+      quantity: qty,
+      size: selectedSize
+    })
 
-  alert("Added to cart")
+  if(error){
+    console.error("INSERT ERROR:", error)
+    alert("Error adding to cart")
+    return
+  }
+
+  alert("Added to cart ✅")
 }
 
 loadProduct()

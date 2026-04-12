@@ -223,11 +223,11 @@ window.addToCart = async function(product_id) {
   const user = data.user
 
   await supabase.from("cart").insert({
-    user_id: user.id,
-    product_id: product_id,
-    quantity: qty,
-    size: selectedSize
-  })
+  user_id: user.id,
+  product_id: product_id,
+  quantity: qty,
+  size: selectedSize
+}).then(res => console.log(res))
 
   alert("Added to cart")
 }

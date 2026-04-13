@@ -1,105 +1,98 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>V~Leaf Orders</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Orders - V~Leaf</title>
 
-  <!-- ICONES -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+body {
+  margin:0;
+  font-family:sans-serif;
+  background:#f5f5f5;
+}
 
-  <style>
-    body {
-      margin:0;
-      font-family: Arial;
-      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-      color:white;
-      padding:20px;
-      padding-bottom:80px;
-    }
+/* CONTAINER */
+.container {
+  max-width:800px;
+  margin:30px auto;
+  padding:20px;
+}
 
-    h1 {
-      text-align:center;
-      margin-bottom:20px;
-    }
+/* ORDER CARD */
+.order {
+  background:white;
+  padding:20px;
+  border-radius:15px;
+  margin-bottom:20px;
+  box-shadow:0 5px 15px rgba(0,0,0,0.05);
+}
 
-    .order {
-      background: rgba(255,255,255,0.05);
-      border-radius:15px;
-      padding:15px;
-      margin-bottom:15px;
-      backdrop-filter: blur(10px);
-      animation: fadeIn 0.5s ease;
-    }
+/* HEADER */
+.order-header {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:10px;
+}
 
-    .item {
-      background: rgba(255,255,255,0.08);
-      border-radius:10px;
-      padding:10px;
-      margin-top:10px;
-    }
+/* STATUS */
+.status {
+  padding:5px 10px;
+  border-radius:20px;
+  font-size:12px;
+  font-weight:bold;
+}
 
-    .status {
-      color:#39FF14;
-      font-weight:bold;
-    }
+.pending { background:orange; color:white; }
+.paid { background:green; color:white; }
+.shipped { background:black; color:white; }
 
-    /* NAV BAS */
-    .nav {
-      position:fixed;
-      bottom:0;
-      left:0;
-      width:100%;
-      background:#111;
-      display:flex;
-      justify-content:space-around;
-      padding:10px 0;
-      border-top:1px solid #39FF14;
-    }
+/* ITEM */
+.item {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  border-top:1px solid #eee;
+  padding:10px 0;
+}
 
-    .nav a {
-      color:white;
-      text-decoration:none;
-      font-size:12px;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-    }
+.item img {
+  width:60px;
+  border-radius:10px;
+}
 
-    .nav i {
-      font-size:18px;
-      margin-bottom:3px;
-      color:#39FF14;
-    }
-
-    @keyframes fadeIn {
-      from {opacity:0; transform:translateY(10px);}
-      to {opacity:1; transform:translateY(0);}
-    }
-  </style>
+/* TOTAL */
+.total {
+  text-align:right;
+  margin-top:10px;
+  font-weight:bold;
+}
+</style>
 </head>
 
 <body>
 
-<h1>Mes Commandes</h1>
-
-<div id="orders"></div>
-
-<!-- NAVIGATION BAS -->
-<div class="nav">
-  <a href="shop.html"><i class="fa fa-store"></i>Shop</a>
-  <a href="cart.html"><i class="fa fa-cart-shopping"></i>Cart</a>
-  <a href="orders.html"><i class="fa fa-box"></i>Orders</a>
-  <a href="profile.html"><i class="fa fa-user"></i>Profile</a>
+<div class="container">
+  <h2>My Orders</h2>
+  <div id="orders">Loading...</div>
 </div>
 
 <script type="module">
 import { supabase } from "./supabase.js"
 
-async function loadOrders() {
+function getStatusClass(status){
+  if(status === "paid") return "paid"
+  if(status === "shipped") return "shipped"
+  return "pending"
+}
+
+async function loadOrders(){
 
   const { data: userData } = await supabase.auth.getUser()
 
   if (!userData.user) {
-    document.getElementById("orders").innerText = "Connecte-toi"
+    document.getElementById("orders").innerText = "Login required"
     return
   }
 
@@ -113,13 +106,21 @@ async function loadOrders() {
 
   let html = ""
 
-  for (let order of orders) {
+  for (let order of orders){
 
     html += `
       <div class="order">
-        <h3>Commande #${order.id}</h3>
-        <p>Total : $${order.total}</p>
-        <p class="status">${order.status}</p>
+
+        <div class="order-header">
+          <div>
+            <strong>Order #${order.id}</strong><br>
+            <small>${new Date(order.created_at).toLocaleString()}</small>
+          </div>
+
+          <span class="status ${getStatusClass(order.status)}">
+            ${order.status}
+          </span>
+        </div>
     `
 
     const { data: items } = await supabase
@@ -127,7 +128,7 @@ async function loadOrders() {
       .select("*")
       .eq("order_id", order.id)
 
-    for (let item of items) {
+    for (let item of items){
 
       const { data: product } = await supabase
         .from("products")
@@ -137,16 +138,27 @@ async function loadOrders() {
 
       html += `
         <div class="item">
-          <p><b>${product.name}</b></p>
-          <p>$${item.price} x ${item.quantity}</p>
+          <img src="${product.image || ''}">
+
+          <div>
+            <p><b>${product.name}</b></p>
+            <p>$${item.price} x ${item.quantity}</p>
+            <p>Size: ${item.size || "-"}</p>
+          </div>
         </div>
       `
     }
 
-    html += `</div>`
+    html += `
+        <div class="total">
+          Total: $${order.total}
+        </div>
+      </div>
+    `
   }
 
-  document.getElementById("orders").innerHTML = html
+  document.getElementById("orders").innerHTML =
+    html || "No orders yet"
 }
 
 loadOrders()

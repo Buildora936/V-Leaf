@@ -1,64 +1,126 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>V~Leaf Login</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login - V~Leaf</title>
 
-  <style>
-    body {
-      background:#0b0f0c;
-      color:white;
-      font-family: Arial;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      height:100vh;
-    }
+<style>
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  background: black;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
 
-    .box {
-      border:1px solid #39FF14;
-      padding:20px;
-      width:300px;
-    }
+/* CONTAINER */
+.box {
+  background: white;
+  color: black;
+  padding: 40px;
+  border-radius: 20px;
+  width: 320px;
+  text-align: center;
+  animation: fadeIn 0.8s ease;
+}
 
-    input {
-      width:100%;
-      margin:5px 0;
-      padding:8px;
-    }
+/* ANIMATION */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
-    button {
-      width:100%;
-      background:#39FF14;
-      border:none;
-      padding:10px;
-      cursor:pointer;
-    }
+/* TITLE */
+h2 {
+  margin-bottom: 20px;
+}
 
-    a {
-      color:#39FF14;
-    }
-  </style>
+/* INPUT */
+input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+}
+
+/* BUTTON */
+button {
+  width: 100%;
+  padding: 12px;
+  background: #39FF14;
+  border: none;
+  border-radius: 30px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+button:hover {
+  opacity: 0.8;
+}
+
+/* MESSAGE */
+#msg {
+  color: red;
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+/* REGISTER LINK */
+.register {
+  margin-top: 15px;
+  font-size: 14px;
+}
+
+.register a {
+  color: black;
+  font-weight: bold;
+  text-decoration: none;
+  border-bottom: 2px solid #39FF14;
+  transition: 0.3s;
+}
+
+.register a:hover {
+  color: #39FF14;
+}
+</style>
 </head>
 
 <body>
 
 <div class="box">
-  <h2>Login V~Leaf</h2>
 
-  <input id="email" placeholder="Email">
+  <h2>Login</h2>
+
+  <input id="email" type="email" placeholder="Email">
   <input id="password" type="password" placeholder="Password">
 
   <button onclick="login()">Login</button>
 
-  <p>Pas de compte ? <a href="register.html">Register</a></p>
+  <div id="msg"></div>
 
-  <p id="msg"></p>
+  <p class="register">
+    Pas de compte ? <a href="register.html">Register</a>
+  </p>
+
 </div>
 
 <script type="module">
 import { supabase } from "./supabase.js"
 
 window.login = async function () {
+
   const email = document.getElementById("email").value
   const password = document.getElementById("password").value
 
@@ -72,7 +134,13 @@ window.login = async function () {
     return
   }
 
-  window.location.href = "shop.html"
+  // UX PRO
+  document.getElementById("msg").style.color = "green"
+  document.getElementById("msg").innerText = "Connexion réussie..."
+
+  setTimeout(() => {
+    window.location.href = "shop.html"
+  }, 800)
 }
 </script>
 

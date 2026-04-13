@@ -1,116 +1,117 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>About V~Leaf</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About - V~Leaf</title>
 
-  <!-- ICONES -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+body {
+  margin:0;
+  font-family:sans-serif;
+  background:black;
+  color:white;
+}
 
-  <style>
-    body {
-      margin:0;
-      font-family: Arial;
-      background: linear-gradient(135deg, #1f4037, #99f2c8);
-      color:#111;
-      padding:20px;
-      padding-bottom:80px;
-    }
+/* HERO */
+.hero {
+  padding:80px 20px;
+  text-align:center;
+}
 
-    h1 {
-      text-align:center;
-      margin-bottom:20px;
-    }
+.hero h1 {
+  font-size:40px;
+}
 
-    .card {
-      background:white;
-      border-radius:20px;
-      padding:20px;
-      margin-bottom:20px;
-      box-shadow:0 10px 30px rgba(0,0,0,0.2);
-      animation: fadeIn 0.6s ease;
-    }
+.hero p {
+  color:#aaa;
+  margin-top:10px;
+}
 
-    .highlight {
-      color:#00c853;
-      font-weight:bold;
-    }
+/* SECTION */
+.section {
+  background:white;
+  color:black;
+  padding:40px 20px;
+}
 
-    .logo {
-      text-align:center;
-      font-size:40px;
-      margin-bottom:10px;
-      color:#00c853;
-    }
+.container {
+  max-width:700px;
+  margin:auto;
+}
 
-    /* NAV BAS */
-    .nav {
-      position:fixed;
-      bottom:0;
-      left:0;
-      width:100%;
-      background:#111;
-      display:flex;
-      justify-content:space-around;
-      padding:10px 0;
-    }
+h2 {
+  margin-bottom:10px;
+}
 
-    .nav a {
-      color:white;
-      text-decoration:none;
-      font-size:12px;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-    }
-
-    .nav i {
-      font-size:18px;
-      color:#39FF14;
-    }
-
-    @keyframes fadeIn {
-      from {opacity:0; transform:translateY(10px);}
-      to {opacity:1; transform:translateY(0);}
-    }
-  </style>
+/* HIGHLIGHT */
+.green {
+  color:#39FF14;
+  font-weight:bold;
+}
+</style>
 </head>
 
 <body>
 
-<div class="logo">V~Leaf</div>
-
-<h1>About Us</h1>
-
-<div class="card">
-  <p>
-    <span class="highlight">V~Leaf</span> est une marque moderne qui combine style, simplicité et technologie.
-  </p>
+<!-- HERO -->
+<div class="hero">
+  <h1>V~Leaf</h1>
+  <p>Elevate your movement.</p>
 </div>
 
-<div class="card">
-  <p>
-    Notre objectif est de créer des produits uniques, accessibles et modernes, avec une expérience fluide comme les grandes plateformes.
-  </p>
+<!-- STORY -->
+<div class="section">
+  <div class="container">
+    <h2>Our Vision</h2>
+    <p>
+      V~Leaf was created to bring a new energy into streetwear and performance style.
+      We believe that fashion should be bold, clean, and accessible.
+    </p>
+  </div>
 </div>
 
-<div class="card">
-  <p>
-    Chaque produit est pensé pour offrir qualité et design minimaliste avec une touche néon propre à V~Leaf.
-  </p>
+<!-- MISSION -->
+<div class="section">
+  <div class="container">
+    <h2>Our Mission</h2>
+    <p>
+      To deliver <span class="green">premium design</span> without the premium price.
+      Every product is crafted with attention to detail, combining style and comfort.
+    </p>
+  </div>
 </div>
 
-<div class="card">
-  <p>
-    V~Leaf n’est pas juste une boutique — c’est une plateforme digitale inspirée des nouvelles générations.
-  </p>
+<!-- QUALITY -->
+<div class="section">
+  <div class="container">
+    <h2>Quality First</h2>
+    <p>
+      Each product is made on demand to ensure quality and reduce waste.
+      We partner with trusted production systems to deliver consistent results.
+    </p>
+  </div>
 </div>
 
-<!-- NAVIGATION BAS -->
-<div class="nav">
-  <a href="shop.html"><i class="fa fa-store"></i>Shop</a>
-  <a href="cart.html"><i class="fa fa-cart-shopping"></i>Cart</a>
-  <a href="orders.html"><i class="fa fa-box"></i>Orders</a>
-  <a href="profile.html"><i class="fa fa-user"></i>Profile</a>
+<!-- GLOBAL -->
+<div class="section">
+  <div class="container">
+    <h2>Global Brand</h2>
+    <p>
+      V~Leaf is built for an international audience.
+      Wherever you are, our goal is to bring you a unique identity through design.
+    </p>
+  </div>
+</div>
+
+<!-- CONTACT -->
+<div class="section">
+  <div class="container">
+    <h2>Contact</h2>
+    <p>
+      WhatsApp: <b>+509 41 04 0511</b>
+    </p>
+  </div>
 </div>
 
 </body>

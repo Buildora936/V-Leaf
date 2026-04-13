@@ -81,7 +81,10 @@ button {
 <div class="modal" id="modal">
   <div class="modal-box">
 
-    <h3>Checkout</h3>
+    <div style="display:flex; justify-content:space-between;">
+      <h3>Checkout</h3>
+      <span onclick="closeModal()" style="cursor:pointer;">✕</span>
+    </div>
 
     <input id="name" placeholder="Name">
     <input id="phone" placeholder="Phone">
@@ -144,10 +147,11 @@ async function loadCart(){
         </div>
 
         <div class="actions">
-          <input type="number" value="${item.quantity}"
-            onchange="updateQty('${item.id}', this.value)">
-        </div>
-      </div>
+  <input type="number" value="${item.quantity}"
+    onchange="updateQty('${item.id}', this.value)">
+
+  <button class="remove" onclick="removeItem('${item.id}')">X</button>
+</div>
     `
   }
 
@@ -163,7 +167,15 @@ window.toggleItem = function(id){
     selectedItems.push(id)
   }
 }
+/* REMOVE ITEMS */
+  window.removeItem = async function(id){
+  await supabase
+    .from("cart")
+    .delete()
+    .eq("id", id)
 
+  loadCart()
+}
 /* OPEN MODAL */
 window.openCheckout = async function(){
 
@@ -187,7 +199,17 @@ window.openCheckout = async function(){
 
   document.getElementById("modal").style.display = "flex"
 }
+window.closeModal = function(){
+  document.getElementById("modal").style.display = "none"
+}
 
+/* fermer si clic dehors */
+window.onclick = function(e){
+  const modal = document.getElementById("modal")
+  if(e.target === modal){
+    modal.style.display = "none"
+  }
+}
 /* CONFIRM */
 window.confirmCheckout = async function(){
 

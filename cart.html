@@ -6,195 +6,203 @@
 <title>Cart - V~Leaf</title>
 
 <style>
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-  background: #fff;
-}
+body { margin:0; font-family:sans-serif; background:#fff; }
 
-/* NAV */
-nav {
-  padding: 15px 30px;
-  border-bottom: 1px solid #eee;
-}
+nav { padding:15px 30px; border-bottom:1px solid #eee; }
 
-/* CONTAINER */
-.container {
-  padding: 30px 10%;
-}
+.container { padding:30px 10%; }
 
-/* ITEM */
 .item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid #eee;
-  padding: 15px 0;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  border-bottom:1px solid #eee;
+  padding:10px 0;
 }
 
-.item img {
-  width: 70px;
-  border-radius: 10px;
-}
+.item img { width:60px; border-radius:10px; }
 
-/* INFO */
-.info {
-  flex: 1;
-  margin-left: 15px;
-}
+.info { flex:1; }
 
-/* ACTIONS */
-.actions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
+.actions { display:flex; gap:5px; }
 
-.actions input {
-  width: 50px;
-}
+.total { margin-top:20px; font-size:18px; }
 
-/* BUTTON */
 button {
-  padding: 12px;
-  border: none;
-  background: #39FF14;
-  font-weight: bold;
-  cursor: pointer;
-  border-radius: 20px;
+  padding:12px;
+  border:none;
+  background:#39FF14;
+  font-weight:bold;
+  border-radius:20px;
+  cursor:pointer;
 }
 
-/* REMOVE */
-.remove {
-  background: black;
-  color: white;
+/* MODAL */
+.modal {
+  position:fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background:rgba(0,0,0,0.5);
+  display:none;
+  justify-content:center;
+  align-items:center;
 }
 
-/* TOTAL */
-.total {
-  margin-top: 20px;
-  font-size: 20px;
-  font-weight: bold;
+.modal-box {
+  background:white;
+  padding:20px;
+  border-radius:10px;
+  width:300px;
 }
 
-/* CHECKOUT */
-.checkout {
-  margin-top: 20px;
-  width: 100%;
+.modal input {
+  width:100%;
+  margin-bottom:10px;
+  padding:8px;
 }
 </style>
 </head>
 
 <body>
 
-<nav>
-  <strong>Cart</strong>
-</nav>
+<nav><strong>Cart</strong></nav>
 
 <div class="container">
-  <div id="cart">Loading...</div>
+
+  <div id="cart"></div>
 
   <div class="total" id="total"></div>
 
-  <button class="checkout" onclick="checkout()">Checkout</button>
+  <button onclick="openCheckout()">Checkout</button>
+
+</div>
+
+<!-- MODAL -->
+<div class="modal" id="modal">
+  <div class="modal-box">
+
+    <h3>Checkout</h3>
+
+    <input id="name" placeholder="Name">
+    <input id="phone" placeholder="Phone">
+    <input id="address" placeholder="Address">
+
+    <button onclick="confirmCheckout()">Confirm Order</button>
+  </div>
 </div>
 
 <script type="module">
 import { supabase } from "./supabase.js"
 
 let cartItems = []
+let selectedItems = []
 
-async function loadCart() {
+async function loadCart(){
 
   const { data: userData } = await supabase.auth.getUser()
 
-  if (!userData.user) {
+  if(!userData.user){
     document.getElementById("cart").innerText = "Login required"
     return
   }
 
   const user = userData.user
 
-  const { data: cart } = await supabase
+  const { data } = await supabase
     .from("cart")
     .select("*")
     .eq("user_id", user.id)
 
-  cartItems = cart || []
+  cartItems = data || []
 
   let html = ""
   let total = 0
 
-  for (let item of cartItems) {
+  for(let item of cartItems){
 
     const { data: product } = await supabase
       .from("products")
       .select("*")
-      .eq("id", item.product_id || item.products?.id)
+      .eq("id", item.product_id)
       .single()
 
-    if (!product) continue
+    if(!product) continue
 
     const subtotal = product.price * item.quantity
     total += subtotal
 
     html += `
       <div class="item">
-        <img src="${product.image || ''}">
+        <input type="checkbox" onchange="toggleItem('${item.id}')">
+
+        <img src="${product.image}">
 
         <div class="info">
           <h4>${product.name}</h4>
           <p>$${product.price}</p>
-          <p>Size: ${item.size || "-"}</p>
+          <p>Size: ${item.size}</p>
         </div>
 
         <div class="actions">
-          <input type="number" value="${item.quantity}" min="1"
+          <input type="number" value="${item.quantity}"
             onchange="updateQty('${item.id}', this.value)">
-
-          <button onclick="removeItem('${item.id}')">X</button>
         </div>
       </div>
     `
   }
 
-  document.getElementById("cart").innerHTML = html || "Cart empty"
-  document.getElementById("total").innerText = "Total: $" + total
-}
-/* UPDATE QTY */
-window.updateQty = async function(id, qty) {
-  await supabase
-    .from("cart")
-    .update({ quantity: qty })
-    .eq("id", id)
-
-  loadCart()
+  document.getElementById("cart").innerHTML = html
+  document.getElementById("total").innerText = "Cart total: $" + total
 }
 
-/* REMOVE */
-window.removeItem = async function(id) {
-  await supabase
-    .from("cart")
-    .delete()
-    .eq("id", id)
-
-  loadCart()
+/* SELECT ITEMS */
+window.toggleItem = function(id){
+  if(selectedItems.includes(id)){
+    selectedItems = selectedItems.filter(i => i !== id)
+  } else {
+    selectedItems.push(id)
+  }
 }
 
-/* CHECKOUT */
-window.checkout = async function() {
+/* OPEN MODAL */
+window.openCheckout = async function(){
+
+  if(selectedItems.length === 0){
+    alert("Select items")
+    return
+  }
 
   const { data: userData } = await supabase.auth.getUser()
   const user = userData.user
 
-  if (!user) {
-    alert("Login required")
-    return
-  }
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", user.id)
+    .single()
+
+  document.getElementById("name").value = profile?.full_name || ""
+  document.getElementById("phone").value = profile?.phone || ""
+  document.getElementById("address").value = profile?.address || ""
+
+  document.getElementById("modal").style.display = "flex"
+}
+
+/* CONFIRM */
+window.confirmCheckout = async function(){
+
+  const name = document.getElementById("name").value
+  const phone = document.getElementById("phone").value
+  const address = document.getElementById("address").value
+
+  const { data: userData } = await supabase.auth.getUser()
+  const user = userData.user
 
   let total = 0
+  let itemsToBuy = cartItems.filter(i => selectedItems.includes(i.id))
 
-  for (let item of cartItems) {
+  for(let item of itemsToBuy){
+
     const { data: product } = await supabase
       .from("products")
       .select("*")
@@ -204,19 +212,20 @@ window.checkout = async function() {
     total += product.price * item.quantity
   }
 
-  // CREATE ORDER
   const { data: order } = await supabase
     .from("orders")
     .insert({
       user_id: user.id,
-      total: total,
-      status: "pending"
+      total,
+      status:"pending",
+      name,
+      phone,
+      address
     })
     .select()
     .single()
 
-  // ORDER ITEMS
-  for (let item of cartItems) {
+  for(let item of itemsToBuy){
 
     const { data: product } = await supabase
       .from("products")
@@ -233,23 +242,30 @@ window.checkout = async function() {
     })
   }
 
-  // CLEAR CART
-  await supabase
-    .from("cart")
-    .delete()
-    .eq("user_id", user.id)
-
-  // WHATSAPP MESSAGE
-  let message = "Hello, I want to pay this order:%0A"
-
-  for (let item of cartItems) {
-    message += `Product ID: ${item.product_id} Qty: ${item.quantity}%0A`
+  // remove only selected items
+  for(let id of selectedItems){
+    await supabase.from("cart").delete().eq("id", id)
   }
 
-  message += `Total: $${total}%0AOrder ID: ${order.id}`
+  // UPDATE PROFILE
+  await supabase.from("profiles").upsert({
+    id: user.id,
+    full_name: name,
+    phone,
+    address
+  })
+
+  // WHATSAPP
+  let msg = `Order ${order.id}%0A`
+
+  for(let item of itemsToBuy){
+    msg += `ID:${item.product_id} Qty:${item.quantity}%0A`
+  }
+
+  msg += `Total:$${total}`
 
   window.location.href =
-    "https://wa.me/50941040511?text=" + message
+    "https://wa.me/50941040511?text=" + msg
 }
 
 loadCart()

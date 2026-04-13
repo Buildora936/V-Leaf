@@ -60,6 +60,13 @@ button {
   margin-bottom:10px;
   padding:8px;
 }
+.remove {
+  background: black;
+  color: white;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+}
 </style>
 </head>
 
@@ -278,13 +285,26 @@ window.confirmCheckout = async function(){
   })
 
   // WHATSAPP
-  let msg = `Order ${order.id}%0A`
+  let msg = `🛒 V~Leaf Order%0A`
+msg += `Order ID: ${order.id}%0A`
+msg += `Name: ${name}%0A`
+msg += `Phone: ${phone}%0A`
+msg += `Address: ${address}%0A%0A`
 
-  for(let item of itemsToBuy){
-    msg += `ID:${item.product_id} Qty:${item.quantity}%0A`
-  }
+msg += `Items:%0A`
 
-  msg += `Total:$${total}`
+for(let item of itemsToBuy){
+
+  const { data: product } = await supabase
+    .from("products")
+    .select("*")
+    .eq("id", item.product_id)
+    .single()
+
+  msg += `- ${product.name} | Size: ${item.size} | Qty: ${item.quantity}%0A`
+}
+
+msg += `%0ATotal: $${total}`
 
   window.location.href =
     "https://wa.me/50941040511?text=" + msg

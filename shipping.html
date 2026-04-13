@@ -1,92 +1,102 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Shipping V~Leaf</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shipping - V~Leaf</title>
 
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+body {
+  margin:0;
+  font-family:sans-serif;
+  background:#f5f5f5;
+}
 
-  <style>
-    body {
-      margin:0;
-      font-family: Arial;
-      background: linear-gradient(135deg, #0f2027, #2c5364);
-      color:white;
-      padding:20px;
-      padding-bottom:80px;
-    }
+.container {
+  max-width:700px;
+  margin:40px auto;
+  background:white;
+  padding:30px;
+  border-radius:15px;
+}
 
-    h1 {
-      text-align:center;
-      margin-bottom:20px;
-    }
+h1 {
+  margin-bottom:20px;
+}
 
-    .card {
-      background: rgba(255,255,255,0.05);
-      border-radius:15px;
-      padding:20px;
-      margin-bottom:15px;
-      backdrop-filter: blur(10px);
-    }
+.section {
+  margin-bottom:20px;
+}
 
-    .card i {
-      color:#39FF14;
-      margin-right:10px;
-    }
-
-    /* NAV */
-    .nav {
-      position:fixed;
-      bottom:0;
-      left:0;
-      width:100%;
-      background:#111;
-      display:flex;
-      justify-content:space-around;
-      padding:10px 0;
-    }
-
-    .nav a {
-      color:white;
-      text-decoration:none;
-      font-size:12px;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-    }
-
-    .nav i {
-      color:#39FF14;
-      font-size:18px;
-    }
-  </style>
+.highlight {
+  color:#39FF14;
+  font-weight:bold;
+}
+</style>
 </head>
 
 <body>
 
-<h1>Livraison</h1>
+<div class="container">
 
-<div class="card">
-  <p><i class="fa fa-truck"></i> Livraison standard : 5 à 10 jours</p>
+<h1>Shipping Information</h1>
+
+<div class="section">
+  <p>
+    All V~Leaf products are made on demand. This means each item is produced
+    specifically for you after your order is confirmed.
+  </p>
 </div>
 
-<div class="card">
-  <p><i class="fa fa-globe"></i> Livraison internationale disponible</p>
+<div class="section">
+  <h3>Processing Time</h3>
+  <p class="highlight">2 – 5 business days</p>
+  <p>
+    Your order is prepared, produced, and packaged before shipping.
+  </p>
 </div>
 
-<div class="card">
-  <p><i class="fa fa-clock"></i> Traitement commande : 24 à 48h</p>
+<div class="section">
+  <h3>Shipping Time</h3>
+
+  <p><b>International:</b> 7 – 15 business days</p>
+  <p><b>Caribbean / Haiti:</b> 10 – 20 business days</p>
+
 </div>
 
-<div class="card">
-  <p><i class="fa fa-box"></i> Suivi disponible après expédition</p>
+<div class="section">
+  <h3>Total Delivery Time</h3>
+  <p>
+    Estimated delivery time is:
+  </p>
+  <p class="highlight">
+    10 – 25 business days
+  </p>
 </div>
 
-<!-- NAV -->
-<div class="nav">
-  <a href="shop.html"><i class="fa fa-store"></i>Shop</a>
-  <a href="cart.html"><i class="fa fa-cart-shopping"></i>Cart</a>
-  <a href="orders.html"><i class="fa fa-box"></i>Orders</a>
-  <a href="profile.html"><i class="fa fa-user"></i>Profile</a>
+<div class="section">
+  <h3>Tracking</h3>
+  <p>
+    Once your order is shipped, you will receive tracking information
+    (when available).
+  </p>
+</div>
+
+<div class="section">
+  <h3>Important</h3>
+  <p>
+    Delays may occur due to customs, holidays, or high demand periods.
+  </p>
+</div>
+
+<div class="section">
+  <h3>Contact</h3>
+  <p>
+    For any shipping question, contact us on WhatsApp:<br>
+    <b>+509 41 04 0511</b>
+  </p>
+</div>
+
 </div>
 
 </body>

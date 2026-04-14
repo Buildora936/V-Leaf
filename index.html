@@ -14,27 +14,39 @@ body {
 }
 
 /* NAVBAR */
-nav {
-  position: sticky;
-  top: 0;
-  backdrop-filter: blur(10px);
-  background: rgba(255,255,255,0.7);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px 40px;
-  z-index: 100;
+.topbar{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px;
+  background:white;
+  border-bottom:1px solid #eee;
 }
 
-nav img {
-  height: 40px;
+.logo{
+  width:25px;
 }
 
-nav a {
-  margin-left: 25px;
-  text-decoration: none;
-  color: black;
-  font-weight: 600;
+.search{
+  flex:1;
+  display:flex;
+  align-items:center;
+  gap:5px;
+  background:#f5f5f5;
+  padding:6px 10px;
+  border-radius:20px;
+}
+
+.search input{
+  border:none;
+  background:transparent;
+  outline:none;
+  width:100%;
+}
+
+.topbar a{
+  color:black;
+  font-size:18px;
 }
 
 /* HERO */
@@ -148,15 +160,15 @@ footer {
 <body>
 
 <!-- NAVBAR -->
-<nav>
-  <img src="V-Leaf logo.png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-  <div>
-    <a href="shop.html">Shop</a>
-    <a href="about.html">About</a>
-    <a href="contact.html">Contact</a>
-  </div>
-</nav>
+<div class="topbar">
+  <img src="V-Leaf logo.png" class="logo">
+
+
+  <a href="shop.html"><i class="fa-solid fa-shopping"></i></a>
+  <a href="profile.html"><i class="fa-solid fa-user"></i></a>
+</div>
 
 <!-- HERO -->
 <section class="hero">

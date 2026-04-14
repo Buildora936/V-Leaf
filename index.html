@@ -169,7 +169,16 @@ footer {
   <div class="search">
     <i class="fa-solid fa-magnifying-glass"></i>
     <input id="searchInput" type="text" placeholder="Search">
-  </div>
+  </div><script>
+document.getElementById("searchInput").addEventListener("keydown", function(e){
+  if(e.key === "Enter"){
+    const value = this.value.trim()
+    if(!value) return
+
+    window.location.href = "shop.html?search=" + encodeURIComponent(value)
+  }
+})
+</script>
 
   <a href="cart.html"><i class="fa-solid fa-bag-shopping"></i></a>
   <a href="profile.html"><i class="fa-solid fa-user"></i></a>

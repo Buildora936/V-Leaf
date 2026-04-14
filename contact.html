@@ -1,117 +1,87 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Contact V~Leaf</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact - V~Leaf</title>
 
-  <!-- ICONES -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+body {
+  margin:0;
+  font-family:sans-serif;
+  background:#f5f5f5;
+}
 
-  <style>
-    body {
-      margin:0;
-      font-family: Arial;
-      background: linear-gradient(135deg, #0f2027, #2c5364);
-      color:white;
-      padding:20px;
-      padding-bottom:80px;
-      display:flex;
-      flex-direction:column;
-      justify-content:center;
-      align-items:center;
-      height:100vh;
-    }
+/* CONTAINER */
+.container {
+  max-width:600px;
+  margin:60px auto;
+  background:white;
+  padding:40px;
+  border-radius:20px;
+  text-align:center;
+}
 
-    h1 {
-      margin-bottom:20px;
-    }
+/* TITLE */
+h1 {
+  margin-bottom:10px;
+}
 
-    .card {
-      background: rgba(255,255,255,0.05);
-      border-radius:20px;
-      padding:30px;
-      text-align:center;
-      backdrop-filter: blur(10px);
-      animation: fadeIn 0.5s ease;
-    }
+/* TEXT */
+p {
+  color:#666;
+}
 
-    .btn {
-      margin-top:20px;
-      background:#25D366;
-      border:none;
-      padding:15px 20px;
-      border-radius:10px;
-      font-size:16px;
-      cursor:pointer;
-      color:white;
-      display:flex;
-      align-items:center;
-      gap:10px;
-      justify-content:center;
-    }
+/* BUTTON */
+.btn {
+  margin-top:20px;
+  display:inline-block;
+  padding:15px 25px;
+  background:#39FF14;
+  color:black;
+  text-decoration:none;
+  font-weight:bold;
+  border-radius:30px;
+  transition:0.3s;
+}
 
-    /* NAV BAS */
-    .nav {
-      position:fixed;
-      bottom:0;
-      left:0;
-      width:100%;
-      background:#111;
-      display:flex;
-      justify-content:space-around;
-      padding:10px 0;
-    }
+.btn:hover {
+  transform:scale(1.05);
+}
 
-    .nav a {
-      color:white;
-      text-decoration:none;
-      font-size:12px;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-    }
-
-    .nav i {
-      font-size:18px;
-      color:#39FF14;
-    }
-
-    @keyframes fadeIn {
-      from {opacity:0; transform:translateY(10px);}
-      to {opacity:1; transform:translateY(0);}
-    }
-  </style>
+/* INFO */
+.info {
+  margin-top:30px;
+  font-size:14px;
+  color:#888;
+}
+</style>
 </head>
 
 <body>
 
-<h1>Contact</h1>
+<div class="container">
 
-<div class="card">
-  <p>Besoin d’aide ou une question ?</p>
-  <p>Contacte-nous directement sur WhatsApp</p>
+  <h1>Contact Us</h1>
 
-  <button class="btn" onclick="contactWhatsApp()">
-    <i class="fa fa-whatsapp"></i>
-    Contacter sur WhatsApp
-  </button>
+  <p>
+    Have a question about your order or product?  
+    Our team is ready to help you.
+  </p>
+
+  <!-- WHATSAPP BUTTON -->
+  <a class="btn"
+     href="https://wa.me/50941040511?text=Hello%20V~Leaf,%20I%20need%20help"
+     target="_blank">
+     Chat on WhatsApp
+  </a>
+
+  <div class="info">
+    <p>WhatsApp: +509 41 04 0511</p>
+    <p>Response time: usually within a few hours</p>
+  </div>
+
 </div>
-
-<!-- NAVIGATION BAS -->
-<div class="nav">
-  <a href="shop.html"><i class="fa fa-store"></i>Shop</a>
-  <a href="cart.html"><i class="fa fa-cart-shopping"></i>Cart</a>
-  <a href="orders.html"><i class="fa fa-box"></i>Orders</a>
-  <a href="profile.html"><i class="fa fa-user"></i>Profile</a>
-</div>
-
-<script>
-function contactWhatsApp() {
-  const number = "50941040511"
-  const message = "Bonjour V~Leaf, j'ai une question."
-  const url = `https://wa.me/${number}?text=${encodeURIComponent(message)}`
-  window.open(url, "_blank")
-}
-</script>
 
 </body>
 </html>

@@ -213,7 +213,7 @@ input.addEventListener("keydown", function(e){
 <!-- HERO -->
 <section class="hero">
   <h1>Elevate Every Step.</h1>
-  <button onclick="goShop()">Shop Now</button>
+  <button ><a href="index.html"> Shop Now</button>
 </section>
 
 <!-- PRODUCTS -->
@@ -276,9 +276,6 @@ window.viewProduct = function(id) {
   window.location.href = "product.html?id=" + id
 }
 
-function goShop(){
-  window.location.href = "shop.html"
-}
 async function loadNav(){
 
   const { data } = await supabase.auth.getUser()

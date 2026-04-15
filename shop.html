@@ -9,10 +9,10 @@
 
 <style>
 body {
-  margin:0;
-  font-family:-apple-system, BlinkMacSystemFont, sans-serif;
-  background:#fff;
-  padding-bottom:80px;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #fff;
+  padding-bottom: 80px;
 }
 
 /* TOPBAR */
@@ -28,7 +28,9 @@ body {
   z-index:100;
 }
 
-.logo{ width:40px; }
+.logo{
+  width:40px;
+}
 
 .search{
   flex:1;
@@ -36,8 +38,15 @@ body {
   align-items:center;
   gap:8px;
   background:#f5f5f5;
-  padding:10px;
+  padding:8px 12px;
   border-radius:25px;
+}
+
+.search input{
+  border:none;
+  outline:none;
+  background:transparent;
+  width:100%;
 }
 
 /* FILTERS */
@@ -53,6 +62,7 @@ body {
   border-radius:20px;
   border:1px solid #ddd;
   background:white;
+  white-space:nowrap;
 }
 
 .filters button.active{
@@ -60,57 +70,61 @@ body {
   color:white;
 }
 
-/* ADV FILTER */
+/* ADVANCED FILTER */
 .advanced{
   display:flex;
-  gap:10px;
+  gap:8px;
   padding:10px;
 }
 
-/* GRID */
+.advanced select,
+.advanced input{
+  padding:8px;
+  border:1px solid #ddd;
+  border-radius:10px;
+}
+
+/* PRODUCTS GRID */
 .products{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
+  grid-template-columns: repeat(auto-fit, minmax(170px,1fr));
   gap:15px;
   padding:10px;
 }
 
 /* CARD */
-.card-wrapper{ position:relative; }
+.card-wrapper{
+  position:relative;
+}
 
 .card{
-  border-radius:18px;
+  border-radius:15px;
   overflow:hidden;
   background:white;
-  transition:0.3s;
   box-shadow:0 5px 15px rgba(0,0,0,0.05);
+  transition:0.2s;
 }
 
-.card:active{
-  transform:scale(0.97);
+.card:hover{
+  transform:translateY(-5px);
 }
 
-/* IMAGE */
 .card img{
   width:100%;
-  transition:0.3s;
 }
 
-.card:hover img{
-  transform:scale(1.05);
-}
-
-/* CONTENT */
 .card-content{
   padding:10px;
 }
 
-.price{ font-weight:bold; }
+.price{
+  font-weight:bold;
+}
 
 .old-price{
   text-decoration:line-through;
-  font-size:12px;
   color:#888;
+  font-size:12px;
 }
 
 /* BADGE */
@@ -119,37 +133,17 @@ body {
   top:8px;
   left:8px;
   background:#39FF14;
-  padding:4px 6px;
   font-size:11px;
+  padding:4px 6px;
   border-radius:5px;
+  font-weight:bold;
 }
 
-/* QUICK ADD */
-.quick{
-  position:absolute;
-  bottom:10px;
-  right:10px;
-  background:black;
-  color:white;
-  width:32px;
-  height:32px;
-  border-radius:50%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-
-/* SKELETON */
-.skeleton{
-  height:200px;
-  background:linear-gradient(90deg,#eee,#f5f5f5,#eee);
-  animation:load 1.2s infinite;
-  border-radius:15px;
-}
-
-@keyframes load{
-  0%{background-position:-200px;}
-  100%{background-position:200px;}
+/* LOADING */
+.loading{
+  text-align:center;
+  padding:40px;
+  color:#999;
 }
 
 /* BOTTOM NAV */
@@ -175,23 +169,28 @@ body {
   align-items:center;
 }
 
+.bottom-nav i{
+  font-size:20px;
+}
+
 .nav-avatar{
   width:24px;
   height:24px;
   border-radius:50%;
+  object-fit:cover;
 }
 </style>
 </head>
 
 <body>
 
-<!-- TOP -->
+<!-- TOPBAR -->
 <div class="topbar">
   <img src="V-Leaf logo.png" class="logo">
 
   <div class="search">
     <i class="fa-solid fa-magnifying-glass"></i>
-    <input id="searchInput" placeholder="Search...">
+    <input id="searchInput" placeholder="Search products...">
   </div>
 </div>
 
@@ -202,7 +201,7 @@ body {
   <button onclick="filterProducts('premium')">Premium</button>
 </div>
 
-<!-- ADV -->
+<!-- ADVANCED FILTER -->
 <div class="advanced">
   <select id="sort">
     <option value="">Sort</option>
@@ -210,15 +209,13 @@ body {
     <option value="high">Price high</option>
   </select>
 
-  <input type="number" id="minPrice" placeholder="Min">
-  <input type="number" id="maxPrice" placeholder="Max">
+  <input type="number" id="minPrice" placeholder="Min price">
+  <input type="number" id="maxPrice" placeholder="Max price">
 </div>
 
 <!-- PRODUCTS -->
 <div class="products" id="products">
-  <div class="skeleton"></div>
-  <div class="skeleton"></div>
-  <div class="skeleton"></div>
+  <div class="loading">Loading products...</div>
 </div>
 
 <!-- BOTTOM NAV -->
@@ -230,7 +227,7 @@ body {
   </a>
 
   <a href="shop.html">
-    <i class="fa-solid fa-shop"></i>
+    <i class="fa-solid fa-grid-2"></i>
     <span>Shop</span>
   </a>
 
@@ -240,7 +237,7 @@ body {
   </a>
 
   <a href="profile.html">
-    <img id="avatar" class="nav-avatar" src="https://via.placeholder.com/40">
+    <img src="https://via.placeholder.com/40" class="nav-avatar" id="avatar">
     <span>Profile</span>
   </a>
 
@@ -252,24 +249,37 @@ import { supabase } from "./supabase.js"
 let allProducts = []
 
 async function loadProducts(){
-  const { data } = await supabase.from("products").select("*")
+
+  const { data, error } = await supabase
+    .from("products")
+    .select("*")
+
+  if(error){
+    document.getElementById("products").innerHTML = "Error loading products"
+    return
+  }
+
   allProducts = data || []
   displayProducts(allProducts)
 }
 
+/* DISPLAY */
 function displayProducts(list){
+
+  if(!list.length){
+    document.getElementById("products").innerHTML = "No products"
+    return
+  }
 
   let html = ""
 
   list.forEach(p=>{
     html += `
       <div class="card-wrapper">
-
         <div class="badge">HOT</div>
 
         <div class="card" onclick="viewProduct('${p.id}')">
           <img src="${p.image || ''}">
-
           <div class="card-content">
             <h3>${p.name}</h3>
             <div>
@@ -278,11 +288,6 @@ function displayProducts(list){
             </div>
           </div>
         </div>
-
-        <div class="quick" onclick="quickAdd('${p.id}', event)">
-          <i class="fa-solid fa-plus"></i>
-        </div>
-
       </div>
     `
   })
@@ -290,32 +295,49 @@ function displayProducts(list){
   document.getElementById("products").innerHTML = html
 }
 
-/* SEARCH */
-searchInput.oninput = e=>{
-  const v = e.target.value.toLowerCase()
-  displayProducts(allProducts.filter(p => p.name.toLowerCase().includes(v)))
+/* SEARCH LIVE */
+document.getElementById("searchInput").addEventListener("input", e=>{
+  const val = e.target.value.toLowerCase()
+
+  displayProducts(
+    allProducts.filter(p =>
+      p.name.toLowerCase().includes(val)
+    )
+  )
+})
+
+/* FILTER BASIC */
+window.filterProducts = function(type){
+
+  document.querySelectorAll(".filters button")
+    .forEach(b=>b.classList.remove("active"))
+
+  event.target.classList.add("active")
+
+  if(type==="cheap"){
+    displayProducts(allProducts.filter(p=>p.price<50))
+  }
+  else if(type==="premium"){
+    displayProducts(allProducts.filter(p=>p.price>=50))
+  }
+  else{
+    displayProducts(allProducts)
+  }
 }
 
-/* FILTER */
-window.filterProducts = type=>{
-  if(type==="cheap") displayProducts(allProducts.filter(p=>p.price<50))
-  else if(type==="premium") displayProducts(allProducts.filter(p=>p.price>=50))
-  else displayProducts(allProducts)
-}
+/* ADV FILTER */
+document.getElementById("sort").onchange = applyFilters
+document.getElementById("minPrice").oninput = applyFilters
+document.getElementById("maxPrice").oninput = applyFilters
 
-/* ADV */
-sort.onchange = applyAdvanced
-minPrice.oninput = applyAdvanced
-maxPrice.oninput = applyAdvanced
+function applyFilters(){
 
-function applyAdvanced(){
+  let list = [...allProducts]
 
-  let list=[...allProducts]
+  const min = parseFloat(minPrice.value) || 0
+  const max = parseFloat(maxPrice.value) || Infinity
 
-  const min=parseFloat(minPrice.value)||0
-  const max=parseFloat(maxPrice.value)||99999
-
-  list=list.filter(p=>p.price>=min && p.price<=max)
+  list = list.filter(p => p.price >= min && p.price <= max)
 
   if(sort.value==="low") list.sort((a,b)=>a.price-b.price)
   if(sort.value==="high") list.sort((a,b)=>b.price-a.price)
@@ -323,27 +345,14 @@ function applyAdvanced(){
   displayProducts(list)
 }
 
-/* QUICK ADD */
-window.quickAdd = async function(id,e){
-  e.stopPropagation()
-
-  const { data } = await supabase.auth.getUser()
-  if(!data.user){
-    window.location.href="login.html"
-    return
-  }
-
-  await supabase.from("cart").insert({
-    user_id:data.user.id,
-    product_id:id,
-    quantity:1
-  })
-
-  alert("Added")
+/* VIEW PRODUCT */
+window.viewProduct = function(id){
+  window.location.href = "product.html?id=" + id
 }
 
-/* AVATAR */
+/* PROFILE AVATAR */
 async function loadAvatar(){
+
   const { data } = await supabase.auth.getUser()
   if(!data.user) return
 
@@ -354,13 +363,8 @@ async function loadAvatar(){
     .single()
 
   if(profile?.avatar_url){
-    avatar.src = profile.avatar_url
+    document.getElementById("avatar").src = profile.avatar_url
   }
-}
-
-/* VIEW */
-window.viewProduct=id=>{
-  window.location.href="product.html?id="+id
 }
 
 loadProducts()

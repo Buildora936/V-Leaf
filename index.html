@@ -279,7 +279,32 @@ window.viewProduct = function(id) {
 function goShop(){
   window.location.href = "shop.html"
 }
+async function loadNav(){
 
+  const { data } = await supabase.auth.getUser()
+  const nav = document.getElementById("nav-right")
+
+  if(data.user){
+
+    nav.innerHTML = `
+      <a href="cart.html" class="icon-link">
+        <i class="fa-solid fa-bag-shopping"></i>
+      </a>
+
+      <a href="profile.html" class="icon-link">
+        <i class="fa-solid fa-user"></i>
+      </a>
+    `
+
+  } else {
+
+    nav.innerHTML = `
+      <a href="register.html" class="nav-btn">
+        Sign Up
+      </a>
+    `
+  }
+}
 
 loadProducts()
 loadNav()

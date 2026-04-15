@@ -1,274 +1,377 @@
-oui voila cart.html      
-  
-<!DOCTYPE html>  
-<html lang="en">  
-<head>  
-<meta charset="UTF-8">  
-<meta name="viewport" content="width=device-width, initial-scale=1.0">  
-<title>Cart - V~Leaf</title>  
-  
-<style>  
-body {  
-  margin: 0;  
-  font-family: -apple-system, BlinkMacSystemFont, sans-serif;  
-  background: #fff;  
-}  
-  
-/* NAV */  
-nav {  
-  padding: 15px 30px;  
-  border-bottom: 1px solid #eee;  
-}  
-  
-/* CONTAINER */  
-.container {  
-  padding: 30px 10%;  
-}  
-  
-/* ITEM */  
-.item {  
-  display: flex;  
-  justify-content: space-between;  
-  align-items: center;  
-  border-bottom: 1px solid #eee;  
-  padding: 15px 0;  
-}  
-  
-.item img {  
-  width: 70px;  
-  border-radius: 10px;  
-}  
-  
-/* INFO */  
-.info {  
-  flex: 1;  
-  margin-left: 15px;  
-}  
-  
-/* ACTIONS */  
-.actions {  
-  display: flex;  
-  align-items: center;  
-  gap: 10px;  
-}  
-  
-.actions input {  
-  width: 50px;  
-}  
-  
-/* BUTTON */  
-button {  
-  padding: 12px;  
-  border: none;  
-  background: #39FF14;  
-  font-weight: bold;  
-  cursor: pointer;  
-  border-radius: 20px;  
-}  
-  
-/* REMOVE */  
-.remove {  
-  background: black;  
-  color: white;  
-}  
-  
-/* TOTAL */  
-.total {  
-  margin-top: 20px;  
-  font-size: 20px;  
-  font-weight: bold;  
-}  
-  
-/* CHECKOUT */  
-.checkout {  
-  margin-top: 20px;  
-  width: 100%;  
-}  
-</style>  
-</head>  
-  
-<body>  
-  
-<nav>  
-  <strong>Cart</strong>  
-</nav>  
-  
-<div class="container">  
-  <div id="cart">Loading...</div>  
-  
-  <div class="total" id="total"></div>  
-  
-  <button class="checkout" onclick="checkout()">Checkout</button>  
-</div>  
-  
-<script type="module">  
-import { supabase } from "./supabase.js"  
-  
-let cartItems = []  
-  
-async function loadCart() {  
-  
-  const { data: userData } = await supabase.auth.getUser()  
-  
-  if (!userData.user) {  
-    document.getElementById("cart").innerText = "Login required"  
-    return  
-  }  
-  
-  const user = userData.user  
-  
-  const { data: cart } = await supabase  
-    .from("cart")  
-    .select("*")  
-    .eq("user_id", user.id)  
-  
-  cartItems = cart || []  
-  
-  let html = ""  
-  let total = 0  
-  
-  for (let item of cartItems) {  
-  
-    const { data: product } = await supabase  
-      .from("products")  
-      .select("*")  
-      .eq("id", item.product_id || item.products?.id)  
-      .single()  
-  
-    if (!product) continue  
-  
-    const subtotal = product.price * item.quantity  
-    total += subtotal  
-  
-    html += `  
-      <div class="item">  
-        <img src="${product.image || ''}">  
-  
-        <div class="info">  
-          <h4>${product.name}</h4>  
-          <p>$${product.price}</p>  
-          <p>Size: ${item.size || "-"}</p>  
-        </div>  
-  
-        <div class="actions">  
-          <input type="number" value="${item.quantity}" min="1"  
-            onchange="updateQty('${item.id}', this.value)">  
-  
-          <button onclick="removeItem('${item.id}')">X</button>  
-        </div>  
-      </div>  
-    `  
-  }  
-  
-  document.getElementById("cart").innerHTML = html || "Cart empty"  
-  document.getElementById("total").innerText = "Total: $" + total  
-}  
-/* UPDATE QTY */  
-window.updateQty = async function(id, qty) {  
-  await supabase  
-    .from("cart")  
-    .update({ quantity: qty })  
-    .eq("id", id)  
-  
-  loadCart()  
-}  
-  
-/* REMOVE */  
-window.removeItem = async function(id) {  
-  await supabase  
-    .from("cart")  
-    .delete()  
-    .eq("id", id)  
-  
-  loadCart()  
-}  
-  
-/* CHECKOUT */  
-window.checkout = async function() {  
-  
-  const { data: userData } = await supabase.auth.getUser()  
-  const user = userData.user  
-  
-  if (!user) {  
-    alert("Login required")  
-    return  
-  }  
-  
-  let total = 0  
-  
-  for (let item of cartItems) {  
-    const { data: product } = await supabase  
-      .from("products")  
-      .select("*")  
-      .eq("id", item.product_id)  
-      .single()  
-  
-    total += product.price * item.quantity  
-  }  
-  
-  // CREATE ORDER  
-  const { data: order } = await supabase  
-    .from("orders")  
-    .insert({  
-      user_id: user.id,  
-      total: total,  
-      status: "pending"  
-    })  
-    .select()  
-    .single()  
-  
-  // ORDER ITEMS  
-  for (let item of cartItems) {  
-  
-    const { data: product } = await supabase  
-      .from("products")  
-      .select("*")  
-      .eq("id", item.product_id)  
-      .single()  
-  
-    await supabase.from("order_items").insert({  
-      order_id: order.id,  
-      product_id: item.product_id,  
-      quantity: item.quantity,  
-      price: product.price,  
-      size: item.size  
-    })  
-  }  
-  
-  // CLEAR CART  
-  await supabase  
-    .from("cart")  
-    .delete()  
-    .eq("user_id", user.id)  
-  
-  // WHATSAPP MESSAGE  
-  let message = "Hello, I want to pay this order:%0A"  
-  
-  for (let item of cartItems) {  
-    message += `Product ID: ${item.product_id} Qty: ${item.quantity}%0A`  
-  }  
-  
-  message += `Total: $${total}%0AOrder ID: ${order.id}`  
-  
-  window.location.href =  
-    "https://wa.me/50941040511?text=" + message  
-}  
-  
-loadCart()  
-</script>  
-  
-</body>  
-</html>  
-  
-  
-JE veut qu'il recupère address, name, phone en phaceolders depuis le profile de l'utilisateur et donne la possibiliter de les modifier, et ces il demande ces infos en modal,   
-voila le backend profiles  
-  
-id  
-full_name  
-phone  
-country  
-address  
-created_at  
-  
-et on VAS ajoutter possibiliter de faire Des commmande precise, exemple SI quelqu'un Mets 5 produit Dan's le panier il peut decider quoi acheter maintenant sans NE pas tout acheter
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shop - V~Leaf</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<style>
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #fff;
+  padding-bottom:80px;
+}
+
+/* TOPBAR (UNCHANGED STYLE + SAFE IMPROVE) */
+.topbar{
+  position:sticky;
+  top:0;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px;
+  background:white;
+  border-bottom:1px solid #eee;
+  z-index:100;
+}
+
+.logo{ width:40px; }
+
+.search{
+  flex:1;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  background:#f5f5f5;
+  padding:8px 12px;
+  border-radius:25px;
+}
+
+.search input{
+  border:none;
+  outline:none;
+  background:transparent;
+  width:100%;
+}
+
+/* FILTERS */
+.filters{
+  display:flex;
+  gap:10px;
+  padding:10px;
+  overflow-x:auto;
+}
+
+.filters button{
+  padding:8px 15px;
+  border-radius:20px;
+  border:1px solid #ddd;
+  background:white;
+  transition:0.2s;
+}
+
+.filters button.active{
+  background:black;
+  color:white;
+}
+
+/* ADVANCED */
+.advanced{
+  padding:10px;
+  display:flex;
+  gap:10px;
+}
+
+.advanced select, .advanced input{
+  padding:8px;
+  border-radius:10px;
+  border:1px solid #ddd;
+}
+
+/* PRODUCTS */
+.products{
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px,1fr));
+  gap:15px;
+  padding:10px;
+}
+
+/* CARD WRAPPER */
+.card-wrapper{
+  position:relative;
+}
+
+/* CARD (UPGRADED INTERACTIONS ONLY) */
+.card{
+  border-radius:15px;
+  overflow:hidden;
+  background:white;
+  transition:0.25s ease;
+  cursor:pointer;
+  position:relative;
+}
+
+.card:hover{
+  transform:translateY(-6px);
+}
+
+.card:active{
+  transform:scale(0.97);
+}
+
+.card img{
+  width:100%;
+  transition:0.3s;
+}
+
+.card:hover img{
+  transform:scale(1.05);
+}
+
+/* CONTENT */
+.card-content{
+  padding:10px;
+}
+
+.price{ font-weight:bold; }
+
+.old-price{
+  text-decoration:line-through;
+  color:#888;
+  font-size:12px;
+}
+
+/* BADGE (dynamic feel) */
+.badge{
+  position:absolute;
+  top:8px;
+  left:8px;
+  background:#39FF14;
+  font-size:11px;
+  padding:4px 6px;
+  border-radius:5px;
+  font-weight:bold;
+}
+
+/* QUICK ADD BUTTON */
+.quick-add{
+  position:absolute;
+  bottom:10px;
+  right:10px;
+  background:black;
+  color:white;
+  border:none;
+  padding:6px 10px;
+  border-radius:20px;
+  font-size:12px;
+  cursor:pointer;
+  opacity:0;
+  transform:translateY(10px);
+  transition:0.2s;
+}
+
+.card-wrapper:hover .quick-add{
+  opacity:1;
+  transform:translateY(0);
+}
+
+/* BOTTOM NAV */
+.bottom-nav{
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  height:65px;
+  background:white;
+  border-top:1px solid #eee;
+  display:flex;
+  justify-content:space-around;
+  align-items:center;
+}
+
+.bottom-nav a{
+  text-decoration:none;
+  font-size:12px;
+  color:#444;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
+.bottom-nav i{ font-size:20px; }
+
+.nav-avatar{
+  width:24px;
+  height:24px;
+  border-radius:50%;
+}
+</style>
+</head>
+
+<body>
+
+<!-- TOP -->
+<div class="topbar">
+  <img src="V-Leaf logo.png" class="logo">
+
+  <div class="search">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input id="searchInput" placeholder="Search...">
+  </div>
+</div>
+
+<!-- FILTERS -->
+<div class="filters">
+  <button class="active" onclick="filterProducts('all')">All</button>
+  <button onclick="filterProducts('cheap')">Under $50</button>
+  <button onclick="filterProducts('premium')">Premium</button>
+</div>
+
+<!-- ADVANCED -->
+<div class="advanced">
+  <select id="sort">
+    <option value="">Sort</option>
+    <option value="low">Price low</option>
+    <option value="high">Price high</option>
+  </select>
+
+  <input type="number" id="minPrice" placeholder="Min">
+  <input type="number" id="maxPrice" placeholder="Max">
+</div>
+
+<!-- PRODUCTS -->
+<div class="products" id="products">Loading...</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+
+  <a href="index.html">
+    <i class="fa-solid fa-house"></i>
+    <span>Home</span>
+  </a>
+
+  <a href="shop.html">
+    <i class="fa-solid fa-grid-2"></i>
+    <span>Shop</span>
+  </a>
+
+  <a href="cart.html">
+    <i class="fa-solid fa-cart-shopping"></i>
+    <span>Cart</span>
+  </a>
+
+  <a href="profile.html">
+    <img src="https://via.placeholder.com/40" class="nav-avatar" id="avatar">
+    <span>Profile</span>
+  </a>
+
+</div>
+
+<script type="module">
+import { supabase } from "./supabase.js"
+
+let allProducts = []
+
+async function loadProducts(){
+  const { data } = await supabase.from("products").select("*")
+  allProducts = data || []
+  displayProducts(allProducts)
+}
+
+/* DISPLAY */
+function displayProducts(list){
+  let html = ""
+
+  list.forEach(p=>{
+
+    const discount = Math.round((1 - p.price/(p.price*1.3)) * 100)
+
+    html += `
+      <div class="card-wrapper">
+
+        <div class="badge">-${discount}%</div>
+
+        <div class="card" onclick="viewProduct('${p.id}')">
+
+          <img src="${p.image || ''}">
+
+          <div class="card-content">
+            <h3>${p.name}</h3>
+
+            <div>
+              <span class="price">$${p.price}</span>
+              <span class="old-price">$${Math.round(p.price*1.3)}</span>
+            </div>
+          </div>
+
+          <button class="quick-add" onclick="quickAdd(event,'${p.id}')">
+            Quick Add
+          </button>
+
+        </div>
+      </div>
+    `
+  })
+
+  document.getElementById("products").innerHTML = html
+}
+
+/* QUICK ADD (placeholder future cart) */
+window.quickAdd = function(e,id){
+  e.stopPropagation()
+  alert("Added to cart (quick add) : " + id)
+}
+
+/* SEARCH */
+document.getElementById("searchInput").addEventListener("input", e=>{
+  const val = e.target.value.toLowerCase()
+  displayProducts(allProducts.filter(p=>p.name.toLowerCase().includes(val)))
+})
+
+/* FILTER */
+window.filterProducts = function(type){
+  if(type==="cheap") displayProducts(allProducts.filter(p=>p.price<50))
+  else if(type==="premium") displayProducts(allProducts.filter(p=>p.price>=50))
+  else displayProducts(allProducts)
+}
+
+/* ADV FILTER */
+document.getElementById("sort").onchange = applyAdvanced
+document.getElementById("minPrice").oninput = applyAdvanced
+document.getElementById("maxPrice").oninput = applyAdvanced
+
+function applyAdvanced(){
+
+  let list = [...allProducts]
+
+  const min = parseFloat(minPrice.value) || 0
+  const max = parseFloat(maxPrice.value) || Infinity
+
+  list = list.filter(p => p.price >= min && p.price <= max)
+
+  if(sort.value==="low") list.sort((a,b)=>a.price-b.price)
+  if(sort.value==="high") list.sort((a,b)=>b.price-a.price)
+
+  displayProducts(list)
+}
+
+/* VIEW */
+window.viewProduct = id=>{
+  window.location.href="product.html?id="+id
+}
+
+/* PROFILE */
+async function loadAvatar(){
+  const { data } = await supabase.auth.getUser()
+  if(!data.user) return
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("avatar_url")
+    .eq("id", data.user.id)
+    .single()
+
+  if(profile?.avatar_url){
+    document.getElementById("avatar").src = profile.avatar_url
+  }
+}
+
+loadProducts()
+loadAvatar()
+</script>
+
+</body>
+</html>

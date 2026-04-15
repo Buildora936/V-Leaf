@@ -279,18 +279,7 @@ window.viewProduct = function(id) {
 function goShop(){
   window.location.href = "shop.html"
 }
-<script>
-const input = document.getElementById("searchInput")
 
-input.addEventListener("keydown", function(e){
-  if(e.key === "Enter"){
-    const value = this.value.trim()
-    if(!value) return
-
-    window.location.href =
-      "shop.html?search=" + encodeURIComponent(value)
-  }
-})
 
 loadProducts()
 loadNav()

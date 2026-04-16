@@ -47,37 +47,30 @@ body {
   width:100%;
 }
 /* SKELETON */
-.skeleton {
-  animation: pulse 1.2s infinite ease-in-out;
+.skeleton{
+  background: linear-gradient(90deg, #eee, #f5f5f5, #eee);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+  border-radius:10px;
 }
 
-@keyframes pulse {
-  0% { opacity: 0.6; }
-  50% { opacity: 1; }
-  100% { opacity: 0.6; }
+@keyframes shimmer{
+  0%{background-position:200% 0}
+  100%{background-position:-200% 0}
 }
 
-.skeleton-card {
-  border-radius: 15px;
-  overflow: hidden;
-  background: #f2f2f2;
+.skel-img{
+  width:100%;
+  height:160px;
 }
 
-.skeleton-img {
-  width: 100%;
-  height: 160px;
-  background: #e5e5e5;
+.skel-text{
+  height:12px;
+  margin-top:8px;
 }
 
-.skeleton-text {
-  height: 12px;
-  margin: 8px;
-  border-radius: 5px;
-  background: #ddd;
-}
-
-.skeleton-text.small {
-  width: 60%;
+.skel-small{
+  width:60%;
 }
 /* FILTERS */
 .filters{
@@ -266,13 +259,20 @@ body {
 
 <!-- PRODUCTS -->
 <div class="products" id="products">
-  ${[...Array(6)].map(() => `
-    <div class="skeleton skeleton-card">
-      <div class="skeleton-img"></div>
-      <div class="skeleton-text"></div>
-      <div class="skeleton-text small"></div>
+
+  <!-- Skeleton x6 -->
+  ${[1,2,3,4,5,6].map(()=>`
+    <div class="card-wrapper">
+      <div class="card">
+        <div class="skeleton skel-img"></div>
+        <div class="card-content">
+          <div class="skeleton skel-text"></div>
+          <div class="skeleton skel-text skel-small"></div>
+        </div>
+      </div>
     </div>
   `).join("")}
+
 </div>
 <!-- BOTTOM NAV -->
 <div class="bottom-nav">
@@ -305,15 +305,7 @@ import { supabase } from "./supabase.js"
 let allProducts = []
 
 async function loadProducts()
-document.getElementById("products").innerHTML = `
-  ${[...Array(6)].map(() => `
-    <div class="skeleton skeleton-card">
-      <div class="skeleton-img"></div>
-      <div class="skeleton-text"></div>
-      <div class="skeleton-text small"></div>
-    </div>
-  `).join("")}
-`
+
 {
   const { data } = await supabase.from("products").select("*")
   allProducts = data || []

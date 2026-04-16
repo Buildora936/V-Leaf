@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Product - V~Leaf</title>
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
 <style>
 body {
   margin: 0;
@@ -14,8 +16,28 @@ body {
 
 /* NAV */
 nav {
-  padding: 15px 30px;
+  padding: 15px;
   border-bottom: 1px solid #eee;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.left-nav{
+  font-size:20px;
+  cursor:pointer;
+}
+
+.right-nav{
+  display:flex;
+  gap:15px;
+  align-items:center;
+}
+
+.avatar{
+  width:30px;
+  height:30px;
+  border-radius:50%;
 }
 
 /* CONTAINER */
@@ -118,7 +140,16 @@ button {
 <body>
 
 <nav>
-  <strong>V~Leaf</strong>
+  <div class="left-nav" onclick="goBack()">
+    <i class="fa-solid fa-arrow-left"></i>
+  </div>
+
+  <div class="right-nav">
+    <a href="cart.html">
+      <i class="fa-solid fa-cart-shopping"></i>
+    </a>
+    <img src="https://via.placeholder.com/40" id="avatar" class="avatar">
+  </div>
 </nav>
 
 <div class="container" id="product">
@@ -133,6 +164,11 @@ let selectedSize = null
 function getId() {
   const params = new URLSearchParams(window.location.search)
   return params.get("id")
+}
+
+/* BACK */
+window.goBack = function(){
+  window.history.back()
 }
 
 async function loadProduct() {
@@ -165,7 +201,7 @@ async function loadProduct() {
 
       <div class="sizes">
         <p>Select Size</p>
-        ${generateSizes()}
+        ${generateSizes(data)}
       </div>
 
       <div class="quantity">
@@ -184,9 +220,26 @@ async function loadProduct() {
   `
 }
 
-/* SIZES */
-function generateSizes(){
-  const sizes = [36,37,38,39,40,41,42,43,44,45]
+/* SIZES DYNAMIQUE */
+function generateSizes(product){
+
+  let sizes = []
+
+  // SI tu as une colonne sizes dans supabase (ARRAY ou TEXT JSON)
+  if(product.sizes){
+    try{
+      sizes = typeof product.sizes === "string"
+        ? JSON.parse(product.sizes)
+        : product.sizes
+    }catch{
+      sizes = []
+    }
+  }
+
+  // fallback si pas encore configuré
+  if(!sizes || sizes.length === 0){
+    sizes = [36,37,38,39,40,41,42,43,44,45]
+  }
 
   return sizes.map(s => `
     <span class="size-btn" onclick="selectSize(${s})">${s}</span>
@@ -212,9 +265,9 @@ window.addToCart = async function(product_id) {
 
   const qty = parseInt(document.getElementById("qty").value)
 
-  const { data: userData, error: userError } = await supabase.auth.getUser()
+  const { data: userData } = await supabase.auth.getUser()
 
-  if (userError || !userData.user) {
+  if (!userData.user) {
     alert("Login required")
     window.location.href = "login.html"
     return
@@ -232,15 +285,31 @@ window.addToCart = async function(product_id) {
     })
 
   if(error){
-    console.error("INSERT ERROR:", error)
     alert("Error adding to cart")
     return
   }
 
-  alert("Added to cart ✅")
+  alert("Added to cart")
+}
+
+/* LOAD AVATAR */
+async function loadAvatar(){
+  const { data } = await supabase.auth.getUser()
+  if(!data.user) return
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("avatar_url")
+    .eq("id", data.user.id)
+    .single()
+
+  if(profile?.avatar_url){
+    document.getElementById("avatar").src = profile.avatar_url
+  }
 }
 
 loadProduct()
+loadAvatar()
 </script>
 
 </body>

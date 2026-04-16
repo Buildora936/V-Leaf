@@ -46,7 +46,39 @@ body {
   background:transparent;
   width:100%;
 }
+/* SKELETON */
+.skeleton {
+  animation: pulse 1.2s infinite ease-in-out;
+}
 
+@keyframes pulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
+}
+
+.skeleton-card {
+  border-radius: 15px;
+  overflow: hidden;
+  background: #f2f2f2;
+}
+
+.skeleton-img {
+  width: 100%;
+  height: 160px;
+  background: #e5e5e5;
+}
+
+.skeleton-text {
+  height: 12px;
+  margin: 8px;
+  border-radius: 5px;
+  background: #ddd;
+}
+
+.skeleton-text.small {
+  width: 60%;
+}
 /* FILTERS */
 .filters{
   display:flex;
@@ -233,8 +265,15 @@ body {
 </div>
 
 <!-- PRODUCTS -->
-<div class="products" id="products">Loading...</div>
-
+<div class="products" id="products">
+  ${[...Array(6)].map(() => `
+    <div class="skeleton skeleton-card">
+      <div class="skeleton-img"></div>
+      <div class="skeleton-text"></div>
+      <div class="skeleton-text small"></div>
+    </div>
+  `).join("")}
+</div>
 <!-- BOTTOM NAV -->
 <div class="bottom-nav">
 
@@ -265,7 +304,17 @@ import { supabase } from "./supabase.js"
 
 let allProducts = []
 
-async function loadProducts(){
+async function loadProducts()
+document.getElementById("products").innerHTML = `
+  ${[...Array(6)].map(() => `
+    <div class="skeleton skeleton-card">
+      <div class="skeleton-img"></div>
+      <div class="skeleton-text"></div>
+      <div class="skeleton-text small"></div>
+    </div>
+  `).join("")}
+`
+{
   const { data } = await supabase.from("products").select("*")
   allProducts = data || []
   displayProducts(allProducts)

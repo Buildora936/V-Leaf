@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin - V~Leaf</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<style>
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,sans-serif;
+  background:#f7f7f7;
+}
+
+/* SIDEBAR */
+.sidebar{
+  position:fixed;
+  left:0;
+  top:0;
+  bottom:0;
+  width:220px;
+  background:#000;
+  color:#fff;
+  padding:20px;
+}
+
+.sidebar h2{
+  margin-bottom:30px;
+}
+
+.sidebar a{
+  display:block;
+  color:#aaa;
+  text-decoration:none;
+  margin:15px 0;
+  cursor:pointer;
+}
+
+.sidebar a:hover{
+  color:#39FF14;
+}
+
+/* MAIN */
+.main{
+  margin-left:240px;
+  padding:20px;
+}
+
+/* CARDS */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:15px;
+}
+
+.card{
+  background:#fff;
+  padding:15px;
+  border-radius:15px;
+}
+
+/* TABLE */
+table{
+  width:100%;
+  border-collapse:collapse;
+  background:#fff;
+  border-radius:10px;
+  overflow:hidden;
+}
+
+th,td{
+  padding:10px;
+  border-bottom:1px solid #eee;
+  text-align:left;
+}
+
+button{
+  padding:8px 10px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+.btn-green{background:#39FF14}
+.btn-red{background:#000;color:#fff}
+.btn-gray{background:#eee}
+
+/* FORM */
+input,select{
+  width:100%;
+  padding:10px;
+  margin:5px 0;
+  border-radius:8px;
+  border:1px solid #ddd;
+}
+
+.section{
+  margin-bottom:40px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="sidebar">
+  <h2>V~Leaf Admin</h2>
+
+  <a onclick="show('dashboard')"><i class="fa fa-chart-line"></i> Dashboard</a>
+  <a onclick="show('products')"><i class="fa fa-box"></i> Products</a>
+  <a onclick="show('orders')"><i class="fa fa-shopping-cart"></i> Orders</a>
+  <a onclick="show('users')"><i class="fa fa-user"></i> Users</a>
+</div>
+
+<div class="main">
+
+  <!-- DASHBOARD -->
+  <div id="dashboard" class="section">
+    <h2>Dashboard</h2>
+    <div class="grid">
+      <div class="card" id="totalProducts">Products: ...</div>
+      <div class="card" id="totalOrders">Orders: ...</div>
+      <div class="card" id="totalUsers">Users: ...</div>
+    </div>
+  </div>
+
+  <!-- PRODUCTS -->
+  <div id="products" class="section" style="display:none;">
+    <h2>Products</h2>
+
+    <h3>Add Product</h3>
+    <input id="pname" placeholder="Name">
+    <input id="pprice" type="number" placeholder="Price">
+    <input id="pimage" placeholder="Image URL">
+    <input id="pcategory" placeholder="Category">
+    <button class="btn-green" onclick="addProduct()">Add</button>
+
+    <h3>List</h3>
+    <div id="productList"></div>
+  </div>
+
+  <!-- ORDERS -->
+  <div id="orders" class="section" style="display:none;">
+    <h2>Orders</h2>
+    <div id="orderList"></div>
+  </div>
+
+  <!-- USERS -->
+  <div id="users" class="section" style="display:none;">
+    <h2>Users</h2>
+    <div id="userList"></div>
+  </div>
+
+</div>
+
+<script type="module">
+import { supabase } from "./supabase.js"
+
+/* NAV */
+window.show = (id)=>{
+  document.querySelectorAll(".section").forEach(s=>s.style.display="none")
+  document.getElementById(id).style.display="block"
+}
+
+/* LOAD DASHBOARD */
+async function loadStats(){
+
+  const { data: products } = await supabase.from("products").select("*")
+  const { data: orders } = await supabase.from("orders").select("*")
+  const { data: users } = await supabase.from("profiles").select("*")
+
+  document.getElementById("totalProducts").innerText = "Products: " + (products?.length||0)
+  document.getElementById("totalOrders").innerText = "Orders: " + (orders?.length||0)
+  document.getElementById("totalUsers").innerText = "Users: " + (users?.length||0)
+}
+
+/* PRODUCTS */
+async function loadProducts(){
+
+  const { data } = await supabase.from("products").select("*")
+
+  document.getElementById("productList").innerHTML =
+    (data||[]).map(p=>`
+      <div class="card">
+        <b>${p.name}</b><br>
+        $${p.price}<br>
+        <button class="btn-red" onclick="deleteProduct('${p.id}')">Delete</button>
+      </div>
+    `).join("")
+}
+
+window.addProduct = async function(){
+
+  await supabase.from("products").insert({
+    name:pname.value,
+    price:pprice.value,
+    image:pimage.value,
+    category:pcategory.value
+  })
+
+  loadProducts()
+}
+
+window.deleteProduct = async function(id){
+  await supabase.from("products").delete().eq("id",id)
+  loadProducts()
+}
+
+/* ORDERS */
+async function loadOrders(){
+
+  const { data } = await supabase.from("orders").select("*")
+
+  document.getElementById("orderList").innerHTML =
+    (data||[]).map(o=>`
+      <div class="card">
+        <b>Order #${o.id}</b><br>
+        $${o.total}<br>
+
+        <select onchange="updateStatus('${o.id}',this.value)">
+          <option ${o.status=="pending"?"selected":""}>pending</option>
+          <option ${o.status=="paid"?"selected":""}>paid</option>
+          <option ${o.status=="shipped"?"selected":""}>shipped</option>
+        </select>
+      </div>
+    `).join("")
+}
+
+window.updateStatus = async function(id,status){
+  await supabase.from("orders").update({status}).eq("id",id)
+}
+
+/* USERS */
+async function loadUsers(){
+
+  const { data } = await supabase.from("profiles").select("*")
+
+  document.getElementById("userList").innerHTML =
+    (data||[]).map(u=>`
+      <div class="card">
+        <b>${u.full_name || "No name"}</b><br>
+        ${u.phone || ""}<br>
+        ${u.country || ""}
+      </div>
+    `).join("")
+}
+
+/* INIT */
+loadStats()
+loadProducts()
+loadOrders()
+loadUsers()
+
+show("dashboard")
+</script>
+
+</body>
+</html>

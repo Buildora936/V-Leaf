@@ -1,5 +1,4 @@
-
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -13,6 +12,7 @@ body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, sans-serif;
   background: #fff;
+  color: #000;
   padding-bottom:80px;
 }
 
@@ -28,11 +28,29 @@ nav {
   z-index: 100;
 }
 
-nav img { height: 35px; }
+nav img {
+  height: 35px;
+}
+
+/* TOP SEARCH (AJOUT) */
+.top-search{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 30px;
+}
+
+.top-search input{
+  flex:1;
+  padding:10px;
+  border-radius:20px;
+  border:1px solid #eee;
+}
 
 /* HEADER */
-.header { padding: 40px 10%; }
-.header h1 { font-size: 36px; }
+.header {
+  padding: 40px 10%;
+}
 
 /* FILTER BAR */
 .filters {
@@ -57,8 +75,8 @@ nav img { height: 35px; }
 }
 
 /* ADV FILTER */
-.advanced {
-  padding: 0 10%;
+.advanced{
+  padding:0 10%;
   display:flex;
   gap:10px;
   margin-bottom:20px;
@@ -95,15 +113,34 @@ nav img { height: 35px; }
 .card img {
   width: 100%;
   background: #f5f5f5;
-  transition:0.4s;
+  transition:0.3s;
 }
 
 .card:hover img{
   transform:scale(1.05);
 }
 
+/* QUICK ADD (AJOUT) */
+.quick-add{
+  position:absolute;
+  bottom:10px;
+  right:10px;
+  background:#39FF14;
+  border:none;
+  padding:8px 10px;
+  border-radius:50%;
+  display:none;
+  cursor:pointer;
+}
+
+.card:hover .quick-add{
+  display:block;
+}
+
 /* CONTENT */
-.card-content { padding: 15px; }
+.card-content {
+  padding: 15px;
+}
 
 .card h3 {
   margin: 0;
@@ -111,7 +148,10 @@ nav img { height: 35px; }
 }
 
 /* PRICE */
-.price { font-weight: bold; }
+.price {
+  margin-top: 5px;
+  font-weight: bold;
+}
 
 .old-price {
   text-decoration: line-through;
@@ -120,7 +160,7 @@ nav img { height: 35px; }
   margin-left: 5px;
 }
 
-/* BADGE DYNAMIC */
+/* BADGE */
 .badge {
   position: absolute;
   background: #39FF14;
@@ -132,27 +172,9 @@ nav img { height: 35px; }
   left: 10px;
 }
 
-/* QUICK ADD */
-.quick-add{
-  position:absolute;
-  bottom:10px;
-  right:10px;
-  background:#39FF14;
-  border:none;
-  padding:10px;
-  border-radius:50%;
-  cursor:pointer;
-  opacity:0;
-  transition:0.3s;
-}
-
-.card:hover .quick-add{
-  opacity:1;
-}
-
-/* MOBILE TAP */
-.card:active{
-  transform:scale(0.97);
+/* WRAP */
+.card-wrapper {
+  position: relative;
 }
 
 /* BOTTOM NAV */
@@ -178,8 +200,6 @@ nav img { height: 35px; }
   align-items:center;
 }
 
-.bottom-nav i{ font-size:20px; }
-
 .nav-avatar{
   width:24px;
   height:24px;
@@ -195,6 +215,12 @@ nav img { height: 35px; }
   <img src="V-Leaf logo.png">
 </nav>
 
+<!-- SEARCH (AJOUT) -->
+<div class="top-search">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input id="searchInput" placeholder="Search products...">
+</div>
+
 <!-- HEADER -->
 <div class="header">
   <h1>Shop</h1>
@@ -207,7 +233,7 @@ nav img { height: 35px; }
   <button onclick="filterProducts('premium')">Premium</button>
 </div>
 
-<!-- ADV FILTER -->
+<!-- ADVANCED -->
 <div class="advanced">
   <select id="sort">
     <option value="">Sort</option>
@@ -220,31 +246,19 @@ nav img { height: 35px; }
 </div>
 
 <!-- PRODUCTS -->
-<div class="products" id="products">Loading...</div>
+<div class="products" id="products">
+  Loading...
+</div>
 
 <!-- BOTTOM NAV -->
 <div class="bottom-nav">
-
-  <a href="index.html">
-    <i class="fa-solid fa-house"></i>
-    <span>Home</span>
-  </a>
-
-  <a href="shop.html">
-    <i class="fa-solid fa-grid-2"></i>
-    <span>Shop</span>
-  </a>
-
-  <a href="cart.html">
-    <i class="fa-solid fa-cart-shopping"></i>
-    <span>Cart</span>
-  </a>
-
+  <a href="index.html"><i class="fa-solid fa-house"></i><span>Home</span></a>
+  <a href="shop.html"><i class="fa-solid fa-grid-2"></i><span>Shop</span></a>
+  <a href="cart.html"><i class="fa-solid fa-cart-shopping"></i><span>Cart</span></a>
   <a href="profile.html">
-    <img src="https://via.placeholder.com/40" class="nav-avatar" id="avatar">
+    <img src="https://via.placeholder.com/40" id="avatar" class="nav-avatar">
     <span>Profile</span>
   </a>
-
 </div>
 
 <script type="module">
@@ -253,116 +267,4 @@ import { supabase } from "./supabase.js"
 let allProducts = []
 
 async function loadProducts() {
-  const { data } = await supabase.from("products").select("*")
-  allProducts = data || []
-  displayProducts(allProducts)
-}
-
-function getBadge(p){
-  if(p.price < 40) return "SALE"
-  if(p.price > 80) return "PREMIUM"
-  return "HOT"
-}
-
-function displayProducts(products) {
-  let html = ""
-
-  products.forEach(p => {
-    html += `
-      <div class="card-wrapper">
-
-        <div class="badge">${getBadge(p)}</div>
-
-        <div class="card" onclick="viewProduct('${p.id}')">
-          <img src="${p.image || ''}">
-          <div class="card-content">
-            <h3>${p.name}</h3>
-            <div>
-              <span class="price">$${p.price}</span>
-              <span class="old-price">$${Math.round(p.price * 1.3)}</span>
-            </div>
-          </div>
-
-          <button class="quick-add" onclick="quickAdd(event,'${p.id}')">
-            <i class="fa-solid fa-plus"></i>
-          </button>
-
-        </div>
-      </div>
-    `
-  })
-
-  document.getElementById("products").innerHTML = html
-}
-
-/* QUICK ADD */
-window.quickAdd = async function(e,id){
-  e.stopPropagation()
-
-  const { data } = await supabase.auth.getUser()
-  if(!data.user){
-    window.location.href="login.html"
-    return
-  }
-
-  await supabase.from("cart").insert({
-    user_id: data.user.id,
-    product_id: id,
-    quantity:1
-  })
-
-  alert("Added")
-}
-
-/* FILTER */
-window.filterProducts = function(type){
-  if(type==="cheap") displayProducts(allProducts.filter(p=>p.price<50))
-  else if(type==="premium") displayProducts(allProducts.filter(p=>p.price>=50))
-  else displayProducts(allProducts)
-}
-
-/* ADV FILTER */
-document.getElementById("sort").onchange = applyAdvanced
-document.getElementById("minPrice").oninput = applyAdvanced
-document.getElementById("maxPrice").oninput = applyAdvanced
-
-function applyAdvanced(){
-  let list = [...allProducts]
-
-  const min = parseFloat(minPrice.value)||0
-  const max = parseFloat(maxPrice.value)||Infinity
-
-  list = list.filter(p=>p.price>=min && p.price<=max)
-
-  if(sort.value==="low") list.sort((a,b)=>a.price-b.price)
-  if(sort.value==="high") list.sort((a,b)=>b.price-a.price)
-
-  displayProducts(list)
-}
-
-/* PROFILE */
-async function loadAvatar(){
-  const { data } = await supabase.auth.getUser()
-  if(!data.user) return
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("avatar_url")
-    .eq("id", data.user.id)
-    .single()
-
-  if(profile?.avatar_url){
-    document.getElementById("avatar").src = profile.avatar_url
-  }
-}
-
-window.viewProduct = id=>{
-  window.location.href="product.html?id="+id
-}
-
-loadProducts()
-loadAvatar()
-</script>
-
-</body>
-</html>
+  const { data } = await

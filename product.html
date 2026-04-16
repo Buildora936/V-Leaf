@@ -48,15 +48,35 @@ nav {
   gap: 40px;
 }
 
-/* IMAGE */
+/* IMAGE GALLERY */
 .image {
   flex: 1;
 }
 
-.image img {
+.main-img {
   width: 100%;
   border-radius: 20px;
   background: #f5f5f5;
+  transition:0.3s;
+}
+
+.thumbs {
+  display:flex;
+  gap:10px;
+  margin-top:10px;
+}
+
+.thumb {
+  width:60px;
+  height:60px;
+  border-radius:10px;
+  object-fit:cover;
+  cursor:pointer;
+  border:2px solid transparent;
+}
+
+.thumb.active{
+  border:2px solid black;
 }
 
 /* INFO */
@@ -128,6 +148,38 @@ button {
   color: #555;
 }
 
+/* SIMILAR */
+.similar {
+  padding: 40px 10%;
+}
+
+.similar h2 {
+  margin-bottom: 15px;
+}
+
+.similar-grid {
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px,1fr));
+  gap:15px;
+}
+
+.sim-card {
+  border:1px solid #eee;
+  border-radius:15px;
+  overflow:hidden;
+  cursor:pointer;
+}
+
+.sim-card img {
+  width:100%;
+}
+
+.sim-card p {
+  padding:10px;
+  margin:0;
+  font-size:14px;
+}
+
 /* MOBILE */
 @media(max-width: 768px){
   .container {
@@ -145,33 +197,33 @@ button {
   </div>
 
   <div class="right-nav">
-    <a href="cart.html">
-      <i class="fa-solid fa-cart-shopping"></i>
-    </a>
+    <a href="cart.html"><i class="fa-solid fa-cart-shopping"></i></a>
     <img src="https://via.placeholder.com/40" id="avatar" class="avatar">
   </div>
 </nav>
 
-<div class="container" id="product">
-  Loading...
+<div class="container" id="product">Loading...</div>
+
+<div class="similar">
+  <h2>Similar Products</h2>
+  <div class="similar-grid" id="similar"></div>
 </div>
 
 <script type="module">
 import { supabase } from "./supabase.js"
 
 let selectedSize = null
+let productData = null
+let images = []
 
-function getId() {
-  const params = new URLSearchParams(window.location.search)
-  return params.get("id")
+window.goBack = () => history.back()
+
+function getId(){
+  return new URLSearchParams(location.search).get("id")
 }
 
-/* BACK */
-window.goBack = function(){
-  window.history.back()
-}
-
-async function loadProduct() {
+/* LOAD PRODUCT */
+async function loadProduct(){
 
   const id = getId()
 
@@ -182,13 +234,40 @@ async function loadProduct() {
     .single()
 
   if(!data){
-    document.getElementById("product").innerHTML = "Product not found"
+    document.getElementById("product").innerHTML = "Not found"
     return
+  }
+
+  productData = data
+
+  /* IMAGES SUPPORT (array OR single) */
+  images = []
+
+  if(data.images){
+    try{
+      images = typeof data.images === "string"
+        ? JSON.parse(data.images)
+        : data.images
+    }catch{}
+  }
+
+  if(images.length === 0 && data.image){
+    images = [data.image]
   }
 
   document.getElementById("product").innerHTML = `
     <div class="image">
-      <img src="${data.image || ''}">
+
+      <img id="mainImg" class="main-img" src="${images[0] || ''}">
+
+      <div class="thumbs">
+        ${images.map((img,i)=>`
+          <img class="thumb ${i===0?'active':''}"
+            src="${img}"
+            onclick="changeImg('${img}', this)">
+        `).join("")}
+      </div>
+
     </div>
 
     <div class="info">
@@ -196,12 +275,12 @@ async function loadProduct() {
 
       <div class="price">
         $${data.price}
-        <span class="old-price">$${Math.round(data.price * 1.3)}</span>
+        <span class="old-price">$${Math.round(data.price*1.3)}</span>
       </div>
 
       <div class="sizes">
         <p>Select Size</p>
-        ${generateSizes(data)}
+        ${renderSizes(data)}
       </div>
 
       <div class="quantity">
@@ -209,107 +288,108 @@ async function loadProduct() {
         <input type="number" id="qty" value="1" min="1">
       </div>
 
-      <button onclick="addToCart('${data.id}')">
-        Add to Cart
-      </button>
+      <button onclick="addToCart('${data.id}')">Add to Cart</button>
 
-      <div class="desc">
-        ${data.description || "Premium quality product."}
-      </div>
+      <div class="desc">${data.description || ""}</div>
     </div>
   `
+
+  loadSimilar(data)
 }
 
-/* SIZES DYNAMIQUE */
-function generateSizes(product){
+/* CHANGE IMAGE */
+window.changeImg = function(src, el){
+  document.getElementById("mainImg").src = src
+  document.querySelectorAll(".thumb").forEach(t=>t.classList.remove("active"))
+  el.classList.add("active")
+}
+
+/* SIZES FROM SUPABASE */
+function renderSizes(p){
 
   let sizes = []
 
-  // SI tu as une colonne sizes dans supabase (ARRAY ou TEXT JSON)
-  if(product.sizes){
+  if(p.sizes){
     try{
-      sizes = typeof product.sizes === "string"
-        ? JSON.parse(product.sizes)
-        : product.sizes
-    }catch{
-      sizes = []
-    }
+      sizes = typeof p.sizes === "string"
+        ? JSON.parse(p.sizes)
+        : p.sizes
+    }catch{}
   }
 
-  // fallback si pas encore configuré
-  if(!sizes || sizes.length === 0){
+  if(!sizes.length){
     sizes = [36,37,38,39,40,41,42,43,44,45]
   }
 
-  return sizes.map(s => `
+  return sizes.map(s=>`
     <span class="size-btn" onclick="selectSize(${s})">${s}</span>
   `).join("")
 }
 
-window.selectSize = function(size){
-  selectedSize = size
-
-  document.querySelectorAll(".size-btn")
-    .forEach(btn => btn.classList.remove("active"))
-
+window.selectSize = function(s){
+  selectedSize = s
+  document.querySelectorAll(".size-btn").forEach(b=>b.classList.remove("active"))
   event.target.classList.add("active")
 }
 
 /* ADD TO CART */
-window.addToCart = async function(product_id) {
+window.addToCart = async function(id){
 
-  if(!selectedSize){
-    alert("Select a size")
-    return
-  }
+  if(!selectedSize) return alert("Select size")
 
   const qty = parseInt(document.getElementById("qty").value)
 
-  const { data: userData } = await supabase.auth.getUser()
+  const { data: u } = await supabase.auth.getUser()
+  if(!u.user) return location.href="login.html"
 
-  if (!userData.user) {
-    alert("Login required")
-    window.location.href = "login.html"
-    return
-  }
+  await supabase.from("cart").insert({
+    user_id:u.user.id,
+    product_id:id,
+    quantity:qty,
+    size:selectedSize
+  })
 
-  const user = userData.user
-
-  const { error } = await supabase
-    .from("cart")
-    .insert({
-      user_id: user.id,
-      product_id: product_id,
-      quantity: qty,
-      size: selectedSize
-    })
-
-  if(error){
-    alert("Error adding to cart")
-    return
-  }
-
-  alert("Added to cart")
+  alert("Added")
 }
 
-/* LOAD AVATAR */
+/* SIMILAR PRODUCTS */
+async function loadSimilar(p){
+
+  const { data } = await supabase
+    .from("products")
+    .select("*")
+
+  let filtered = (data||[]).filter(x =>
+    x.category === p.category || x.name.includes(p.name.split(" ")[0])
+  )
+
+  filtered = filtered.filter(x => x.id !== p.id).slice(0,6)
+
+  document.getElementById("similar").innerHTML = filtered.map(x=>`
+    <div class="sim-card" onclick="location.href='product.html?id=${x.id}'">
+      <img src="${x.image}">
+      <p>${x.name}</p>
+    </div>
+  `).join("")
+}
+
+/* AVATAR */
 async function loadAvatar(){
   const { data } = await supabase.auth.getUser()
   if(!data.user) return
 
-  const { data: profile } = await supabase
+  const { data: p } = await supabase
     .from("profiles")
     .select("avatar_url")
     .eq("id", data.user.id)
     .single()
 
-  if(profile?.avatar_url){
-    document.getElementById("avatar").src = profile.avatar_url
-  }
+  if(p?.avatar_url) avatar.src = p.avatar_url
 }
 
 loadProduct()
 loadAvatar()
+
 </script>
 
 </body>

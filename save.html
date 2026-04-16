@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shop - V~Leaf</title>
+<title>Product - V~Leaf</title>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
@@ -12,348 +12,287 @@ body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, sans-serif;
   background: #fff;
-  padding-bottom:80px;
 }
 
-/* TOPBAR (UNCHANGED STYLE + SAFE IMPROVE) */
-.topbar{
-  position:sticky;
-  top:0;
+/* NAV */
+nav {
+  padding: 15px;
+  border-bottom: 1px solid #eee;
   display:flex;
+  justify-content:space-between;
   align-items:center;
-  gap:10px;
-  padding:10px;
-  background:white;
-  border-bottom:1px solid #eee;
-  z-index:100;
 }
 
-.logo{ width:40px; }
+.left-nav{
+  font-size:20px;
+  cursor:pointer;
+}
 
-.search{
-  flex:1;
+.right-nav{
   display:flex;
-  align-items:center;
-  gap:8px;
-  background:#f5f5f5;
-  padding:8px 12px;
-  border-radius:25px;
-}
-
-.search input{
-  border:none;
-  outline:none;
-  background:transparent;
-  width:100%;
-}
-
-/* FILTERS */
-.filters{
-  display:flex;
-  gap:10px;
-  padding:10px;
-  overflow-x:auto;
-}
-
-.filters button{
-  padding:8px 15px;
-  border-radius:20px;
-  border:1px solid #ddd;
-  background:white;
-  transition:0.2s;
-}
-
-.filters button.active{
-  background:black;
-  color:white;
-}
-
-/* ADVANCED */
-.advanced{
-  padding:10px;
-  display:flex;
-  gap:10px;
-}
-
-.advanced select, .advanced input{
-  padding:8px;
-  border-radius:10px;
-  border:1px solid #ddd;
-}
-
-/* PRODUCTS */
-.products{
-  display:grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px,1fr));
   gap:15px;
-  padding:10px;
-}
-
-/* CARD WRAPPER */
-.card-wrapper{
-  position:relative;
-}
-
-/* CARD (UPGRADED INTERACTIONS ONLY) */
-.card{
-  border-radius:15px;
-  overflow:hidden;
-  background:white;
-  transition:0.25s ease;
-  cursor:pointer;
-  position:relative;
-}
-
-.card:hover{
-  transform:translateY(-6px);
-}
-
-.card:active{
-  transform:scale(0.97);
-}
-
-.card img{
-  width:100%;
-  transition:0.3s;
-}
-
-.card:hover img{
-  transform:scale(1.05);
-}
-
-/* CONTENT */
-.card-content{
-  padding:10px;
-}
-
-.price{ font-weight:bold; }
-
-.old-price{
-  text-decoration:line-through;
-  color:#888;
-  font-size:12px;
-}
-
-/* BADGE (dynamic feel) */
-.badge{
-  position:absolute;
-  top:8px;
-  left:8px;
-  background:#39FF14;
-  font-size:11px;
-  padding:4px 6px;
-  border-radius:5px;
-  font-weight:bold;
-}
-
-/* QUICK ADD BUTTON */
-.quick-add{
-  position:absolute;
-  bottom:10px;
-  right:10px;
-  background:black;
-  color:white;
-  border:none;
-  padding:6px 10px;
-  border-radius:20px;
-  font-size:12px;
-  cursor:pointer;
-  opacity:0;
-  transform:translateY(10px);
-  transition:0.2s;
-}
-
-.card-wrapper:hover .quick-add{
-  opacity:1;
-  transform:translateY(0);
-}
-
-/* BOTTOM NAV */
-.bottom-nav{
-  position:fixed;
-  bottom:0;
-  left:0;
-  right:0;
-  height:65px;
-  background:white;
-  border-top:1px solid #eee;
-  display:flex;
-  justify-content:space-around;
   align-items:center;
 }
 
-.bottom-nav a{
-  text-decoration:none;
-  font-size:12px;
-  color:#444;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-}
-
-.bottom-nav i{ font-size:20px; }
-
-.nav-avatar{
-  width:24px;
-  height:24px;
+.avatar{
+  width:30px;
+  height:30px;
   border-radius:50%;
+}
+
+/* CONTAINER */
+.container {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 40px 10%;
+  gap: 40px;
+}
+
+/* IMAGE */
+.image {
+  flex: 1;
+}
+
+.image img {
+  width: 100%;
+  border-radius: 20px;
+  background: #f5f5f5;
+}
+
+/* INFO */
+.info {
+  flex: 1;
+}
+
+.info h1 {
+  margin: 0;
+  font-size: 28px;
+}
+
+/* PRICE */
+.price {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 15px 0;
+}
+
+.old-price {
+  text-decoration: line-through;
+  color: #888;
+  margin-left: 10px;
+}
+
+/* SIZE */
+.sizes {
+  margin: 20px 0;
+}
+
+.size-btn {
+  padding: 10px;
+  border: 1px solid #ddd;
+  margin: 5px;
+  cursor: pointer;
+  border-radius: 10px;
+}
+
+.size-btn.active {
+  background: black;
+  color: white;
+}
+
+/* QUANTITY */
+.quantity {
+  margin: 20px 0;
+}
+
+.quantity input {
+  width: 60px;
+  padding: 8px;
+}
+
+/* BUTTON */
+button {
+  padding: 15px;
+  width: 100%;
+  border: none;
+  background: #39FF14;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 30px;
+  font-size: 16px;
+}
+
+/* DESC */
+.desc {
+  margin-top: 20px;
+  color: #555;
+}
+
+/* MOBILE */
+@media(max-width: 768px){
+  .container {
+    flex-direction: column;
+  }
 }
 </style>
 </head>
 
 <body>
 
-<!-- TOP -->
-<div class="topbar">
-  <img src="V-Leaf logo.png" class="logo">
-
-  <div class="search">
-    <i class="fa-solid fa-magnifying-glass"></i>
-    <input id="searchInput" placeholder="Search...">
+<nav>
+  <div class="left-nav" onclick="goBack()">
+    <i class="fa-solid fa-arrow-left"></i>
   </div>
-</div>
 
-<!-- FILTERS -->
-<div class="filters">
-  <button class="active" onclick="filterProducts('all')">All</button>
-  <button onclick="filterProducts('cheap')">Under $50</button>
-  <button onclick="filterProducts('premium')">Premium</button>
-</div>
+  <div class="right-nav">
+    <a href="cart.html">
+      <i class="fa-solid fa-cart-shopping"></i>
+    </a>
+    <img src="https://via.placeholder.com/40" id="avatar" class="avatar">
+  </div>
+</nav>
 
-<!-- ADVANCED -->
-<div class="advanced">
-  <select id="sort">
-    <option value="">Sort</option>
-    <option value="low">Price low</option>
-    <option value="high">Price high</option>
-  </select>
-
-  <input type="number" id="minPrice" placeholder="Min">
-  <input type="number" id="maxPrice" placeholder="Max">
-</div>
-
-<!-- PRODUCTS -->
-<div class="products" id="products">Loading...</div>
-
-<!-- BOTTOM NAV -->
-<div class="bottom-nav">
-
-  <a href="index.html">
-    <i class="fa-solid fa-house"></i>
-    <span>Home</span>
-  </a>
-
-  <a href="shop.html">
-    <i class="fa-solid fa-shop"></i>
-    <span>Shop</span>
-  </a>
-
-  <a href="cart.html">
-    <i class="fa-solid fa-cart-shopping"></i>
-    <span>Cart</span>
-  </a>
-
-  <a href="profile.html">
-    <img src="https://via.placeholder.com/40" class="nav-avatar" id="avatar">
-    <span>You</span>
-  </a>
-
+<div class="container" id="product">
+  Loading...
 </div>
 
 <script type="module">
 import { supabase } from "./supabase.js"
 
-let allProducts = []
+let selectedSize = null
 
-async function loadProducts(){
-  const { data } = await supabase.from("products").select("*")
-  allProducts = data || []
-  displayProducts(allProducts)
+function getId() {
+  const params = new URLSearchParams(window.location.search)
+  return params.get("id")
 }
 
-/* DISPLAY */
-function displayProducts(list){
-  let html = ""
+/* BACK */
+window.goBack = function(){
+  window.history.back()
+}
 
-  list.forEach(p=>{
+async function loadProduct() {
 
-    const discount = Math.round((1 - p.price/(p.price*1.3)) * 100)
+  const id = getId()
 
-    html += `
-      <div class="card-wrapper">
+  const { data } = await supabase
+    .from("products")
+    .select("*")
+    .eq("id", id)
+    .single()
 
-        <div class="badge">-${discount}%</div>
+  if(!data){
+    document.getElementById("product").innerHTML = "Product not found"
+    return
+  }
 
-        <div class="card" onclick="viewProduct('${p.id}')">
+  document.getElementById("product").innerHTML = `
+    <div class="image">
+      <img src="${data.image || ''}">
+    </div>
 
-          <img src="${p.image || ''}">
+    <div class="info">
+      <h1>${data.name}</h1>
 
-          <div class="card-content">
-            <h3>${p.name}</h3>
-
-            <div>
-              <span class="price">$${p.price}</span>
-              <span class="old-price">$${Math.round(p.price*1.3)}</span>
-            </div>
-          </div>
-
-          <button class="quick-add" onclick="quickAdd(event,'${p.id}')">
-            Quick Add
-          </button>
-
-        </div>
+      <div class="price">
+        $${data.price}
+        <span class="old-price">$${Math.round(data.price * 1.3)}</span>
       </div>
-    `
-  })
 
-  document.getElementById("products").innerHTML = html
+      <div class="sizes">
+        <p>Select Size</p>
+        ${generateSizes(data)}
+      </div>
+
+      <div class="quantity">
+        <p>Quantity</p>
+        <input type="number" id="qty" value="1" min="1">
+      </div>
+
+      <button onclick="addToCart('${data.id}')">
+        Add to Cart
+      </button>
+
+      <div class="desc">
+        ${data.description || "Premium quality product."}
+      </div>
+    </div>
+  `
 }
 
-/* QUICK ADD (placeholder future cart) */
-window.quickAdd = function(e,id){
-  e.stopPropagation()
-  alert("Added to cart product id: " + id)
+/* SIZES DYNAMIQUE */
+function generateSizes(product){
+
+  let sizes = []
+
+  // SI tu as une colonne sizes dans supabase (ARRAY ou TEXT JSON)
+  if(product.sizes){
+    try{
+      sizes = typeof product.sizes === "string"
+        ? JSON.parse(product.sizes)
+        : product.sizes
+    }catch{
+      sizes = []
+    }
+  }
+
+  // fallback si pas encore configuré
+  if(!sizes || sizes.length === 0){
+    sizes = [36,37,38,39,40,41,42,43,44,45]
+  }
+
+  return sizes.map(s => `
+    <span class="size-btn" onclick="selectSize(${s})">${s}</span>
+  `).join("")
 }
 
-/* SEARCH */
-document.getElementById("searchInput").addEventListener("input", e=>{
-  const val = e.target.value.toLowerCase()
-  displayProducts(allProducts.filter(p=>p.name.toLowerCase().includes(val)))
-})
+window.selectSize = function(size){
+  selectedSize = size
 
-/* FILTER */
-window.filterProducts = function(type){
-  if(type==="cheap") displayProducts(allProducts.filter(p=>p.price<50))
-  else if(type==="premium") displayProducts(allProducts.filter(p=>p.price>=50))
-  else displayProducts(allProducts)
+  document.querySelectorAll(".size-btn")
+    .forEach(btn => btn.classList.remove("active"))
+
+  event.target.classList.add("active")
 }
 
-/* ADV FILTER */
-document.getElementById("sort").onchange = applyAdvanced
-document.getElementById("minPrice").oninput = applyAdvanced
-document.getElementById("maxPrice").oninput = applyAdvanced
+/* ADD TO CART */
+window.addToCart = async function(product_id) {
 
-function applyAdvanced(){
+  if(!selectedSize){
+    alert("Select a size")
+    return
+  }
 
-  let list = [...allProducts]
+  const qty = parseInt(document.getElementById("qty").value)
 
-  const min = parseFloat(minPrice.value) || 0
-  const max = parseFloat(maxPrice.value) || Infinity
+  const { data: userData } = await supabase.auth.getUser()
 
-  list = list.filter(p => p.price >= min && p.price <= max)
+  if (!userData.user) {
+    alert("Login required")
+    window.location.href = "login.html"
+    return
+  }
 
-  if(sort.value==="low") list.sort((a,b)=>a.price-b.price)
-  if(sort.value==="high") list.sort((a,b)=>b.price-a.price)
+  const user = userData.user
 
-  displayProducts(list)
+  const { error } = await supabase
+    .from("cart")
+    .insert({
+      user_id: user.id,
+      product_id: product_id,
+      quantity: qty,
+      size: selectedSize
+    })
+
+  if(error){
+    alert("Error adding to cart")
+    return
+  }
+
+  alert("Added to cart")
 }
 
-/* VIEW */
-window.viewProduct = id=>{
-  window.location.href="product.html?id="+id
-}
-
-/* PROFILE */
+/* LOAD AVATAR */
 async function loadAvatar(){
   const { data } = await supabase.auth.getUser()
   if(!data.user) return
@@ -369,7 +308,7 @@ async function loadAvatar(){
   }
 }
 
-loadProducts()
+loadProduct()
 loadAvatar()
 </script>
 

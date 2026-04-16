@@ -12,7 +12,6 @@ body {
   background:#f5f5f5;
 }
 
-/* CONTAINER */
 .container {
   max-width:500px;
   margin:40px auto;
@@ -21,10 +20,10 @@ body {
   border-radius:20px;
 }
 
-/* AVATAR */
 .avatar {
   text-align:center;
   margin-bottom:20px;
+  position:relative;
 }
 
 .avatar img {
@@ -32,6 +31,11 @@ body {
   height:100px;
   border-radius:50%;
   object-fit:cover;
+  border:2px solid #eee;
+}
+
+.avatar input{
+  margin-top:10px;
 }
 
 /* INPUT */
@@ -41,6 +45,7 @@ input {
   margin-bottom:10px;
   border-radius:10px;
   border:1px solid #ddd;
+  outline:none;
 }
 
 /* BUTTON */
@@ -56,6 +61,7 @@ button {
 
 #msg {
   margin-top:10px;
+  text-align:center;
 }
 </style>
 </head>
@@ -66,7 +72,7 @@ button {
 
   <div class="avatar">
     <img id="avatar" src="https://via.placeholder.com/100">
-    <input type="file" onchange="uploadAvatar(event)">
+    <input type="file" id="fileInput" accept="image/*">
   </div>
 
   <input id="name" placeholder="Full Name">
@@ -74,7 +80,7 @@ button {
   <input id="country" placeholder="Country">
   <input id="address" placeholder="Address">
 
-  <button onclick="saveProfile()">Save</button>
+  <button onclick="saveProfile()">Save Profile</button>
 
   <div id="msg"></div>
 
@@ -85,16 +91,23 @@ import { supabase } from "./supabase.js"
 
 let user = null
 
-async function loadProfile(){
+/* INIT */
+async function init(){
 
-  const { data: userData } = await supabase.auth.getUser()
+  const { data } = await supabase.auth.getUser()
 
-  if(!userData.user){
+  if(!data.user){
     window.location.href = "login.html"
     return
   }
 
-  user = userData.user
+  user = data.user
+
+  await loadProfile()
+  document.getElementById("fileInput").addEventListener("change", uploadAvatar)
+}
+
+async function loadProfile(){
 
   const { data: profile } = await supabase
     .from("profiles")
@@ -114,42 +127,54 @@ async function loadProfile(){
   }
 }
 
-/* SAVE PROFILE */
+/* SAVE PROFILE (SAFE UPSERT) */
 window.saveProfile = async function(){
 
-  const full_name = document.getElementById("name").value
-  const phone = document.getElementById("phone").value
-  const country = document.getElementById("country").value
-  const address = document.getElementById("address").value
-
-  await supabase.from("profiles").upsert({
+  const payload = {
     id: user.id,
-    full_name,
-    phone,
-    country,
-    address
-  })
+    full_name: document.getElementById("name").value,
+    phone: document.getElementById("phone").value,
+    country: document.getElementById("country").value,
+    address: document.getElementById("address").value,
+    updated_at: new Date().toISOString()
+  }
 
-  document.getElementById("msg").innerText = "Saved!"
+  const { error } = await supabase
+    .from("profiles")
+    .upsert(payload, { onConflict: "id" })
+
+  if(error){
+    document.getElementById("msg").innerText = "Error saving profile"
+    return
+  }
+
+  document.getElementById("msg").innerText = "Profile saved ✓"
 }
 
-/* UPLOAD AVATAR */
-window.uploadAvatar = async function(event){
+/* AVATAR UPLOAD FIXED */
+async function uploadAvatar(e){
 
-  const file = event.target.files[0]
-
+  const file = e.target.files[0]
   if(!file) return
 
-  const fileName = user.id + ".png"
+  const fileExt = file.name.split('.').pop()
+  const filePath = `${user.id}.${fileExt}`
 
-  await supabase.storage
+  const { error: uploadError } = await supabase.storage
     .from("avatars")
-    .upload(fileName, file, { upsert: true })
+    .upload(filePath, file, {
+      upsert: true
+    })
+
+  if(uploadError){
+    document.getElementById("msg").innerText = "Upload failed"
+    return
+  }
 
   const { data } = supabase
     .storage
     .from("avatars")
-    .getPublicUrl(fileName)
+    .getPublicUrl(filePath)
 
   const url = data.publicUrl
 
@@ -159,9 +184,11 @@ window.uploadAvatar = async function(event){
     id: user.id,
     avatar_url: url
   })
+
+  document.getElementById("msg").innerText = "Avatar updated ✓"
 }
 
-loadProfile()
+init()
 </script>
 
 </body>

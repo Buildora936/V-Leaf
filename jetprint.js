@@ -1,18 +1,26 @@
-const BASE_URL = "https://api.jetprintapp.com/api"
+export default async function handler(req, res) {
 
-const API_KEY = "MmWczjb1_AgRrPmV3_WMS"
-const CLIENT_ID = "SpAL24QcYL0o3__FD0Gu5"
+  const apiKey = process.env.JETPRINT_API_KEY
 
-export async function fetchProducts() {
-  const res = await fetch(`${BASE_URL}/products`, {
-    method: "GET",
-    headers: {
-      "Authorization": `Bearer ${API_KEY}`,
-      "Content-Type": "application/json",
-      "Client-Id": CLIENT_ID
-    }
-  })
+  try {
 
-  const data = await res.json()
-  return data
+    const response = await fetch("https://open.jetprintapp.com/api/product/list", {
+      method: "GET",
+      headers: {
+        "Authorization": "Bearer " + apiKey,
+        "Content-Type": "application/json"
+      }
+    })
+
+    const data = await response.text()
+
+    res.status(200).json({
+      success: true,
+      raw: data
+    })
+
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+
 }

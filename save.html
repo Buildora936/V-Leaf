@@ -145,7 +145,7 @@ async function loadCart(){
 
     const { data: product } = await supabase
       .from("products")
-      .select("*")
+      .select("id,name,price,image")
       .eq("id", item.product_id)
       .single()
 
@@ -158,27 +158,35 @@ async function loadCart(){
       <div class="item">
         <input type="checkbox" onchange="toggleItem('${item.id}')">
 
-        <img src="${product.image}">
+        <img src="${product.image || ''}">
 
         <div class="info">
           <h4>${product.name}</h4>
           <p>$${product.price}</p>
-          <p>Size: ${item.size}</p>
+          <p>Size: ${item.size || '-'}</p>
         </div>
 
         <div class="actions">
-  <input type="number" value="${item.quantity}"
-    onchange="updateQty('${item.id}', this.value)">
+          <input type="number" value="${item.quantity}"
+            onchange="updateQty('${item.id}', this.value)">
 
-  <button class="remove" onclick="removeItem('${item.id}')">X</button>
-</div>
+          <button class="remove" onclick="removeItem('${item.id}')">X</button>
+        </div>
+      </div>
     `
   }
 
-  document.getElementById("cart").innerHTML = html
+  document.getElementById("cart").innerHTML = html || "Cart empty"
   document.getElementById("total").innerText = "Cart total: $" + total
 }
+window.updateQty = async function(id, qty){
+  await supabase
+    .from("cart")
+    .update({ quantity: qty })
+    .eq("id", id)
 
+  loadCart()
+}
 /* SELECT ITEMS */
 window.toggleItem = function(id){
   if(selectedItems.includes(id)){
@@ -219,9 +227,7 @@ window.openCheckout = async function(){
 
   document.getElementById("modal").style.display = "flex"
 }
-if(!profile){
-  alert("Complete your profile first")
-}
+
 window.closeModal = function(){
   document.getElementById("modal").style.display = "none"
 }
@@ -258,15 +264,7 @@ window.confirmCheckout = async function(){
   : cartItems
   for(let item of itemsToBuy){
 
-    const { data: product } = await supabase
-      .from("products")
-      .select("*")
-      .eq("id", item.product_id)
-      .single()
-
-    total += product.price * item.quantity
-  }
-
+  
   const { data: order } = await supabase
     .from("orders")
     .insert({
@@ -282,21 +280,22 @@ window.confirmCheckout = async function(){
 
   for(let item of itemsToBuy){
 
-    item._product = product
-      .from("products")
-      .select("*")
-      .eq("id", item.product_id)
-      .single()
-      .in("id", cartItems.map(i => i.product_id))
-    
-    await supabase.from("order_items").insert({
-      order_id: order.id,
-      product_id: item.product_id,
-      quantity: item.quantity,
-      price: product.price,
-      size: item.size
-    })
-  }
+  const { data: product } = await supabase
+    .from("products")
+    .select("id,name,price")
+    .eq("id", item.product_id)
+    .single()
+
+  if(!product) continue
+
+  await supabase.from("order_items").insert({
+    order_id: order.id,
+    product_id: item.product_id,
+    quantity: item.quantity,
+    price: product.price,
+    size: item.size
+  })
+}
 
   // remove only selected items
   for(let id of selectedItems){
@@ -310,13 +309,7 @@ window.confirmCheckout = async function(){
     phone,
     address
   })
-function computeTotal(items){
-  return items.reduce((sum, item) => {
-    const product = item._product
-    if(!product) return sum
-    return sum + product.price * item.quantity
-  }, 0)
-}
+
   // WHATSAPP
   let msg = `🛒 V~Leaf Order%0A`
 msg += `Order ID: ${order.id}%0A`

@@ -3,303 +3,200 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cart - V~Leaf</title>
+<title>My Orders - V~Leaf</title>
 
 <style>
-body { margin:0; font-family:sans-serif; background:#fff; }
+body {
+  margin:0;
+  font-family:sans-serif;
+  background:#f5f5f5;
+}
 
-nav { padding:15px 30px; border-bottom:1px solid #eee; }
+.container {
+  max-width:800px;
+  margin:30px auto;
+  padding:20px;
+}
 
-.container { padding:30px 10%; }
+.order {
+  background:white;
+  padding:20px;
+  border-radius:15px;
+  margin-bottom:20px;
+  box-shadow:0 5px 15px rgba(0,0,0,0.05);
+}
 
+.order-header {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:10px;
+}
+
+.status {
+  padding:5px 10px;
+  border-radius:20px;
+  font-size:12px;
+  font-weight:bold;
+}
+
+.pending { background:orange; color:white; }
+.paid { background:green; color:white; }
+.shipped { background:black; color:white; }
+
+/* ITEM */
 .item {
   display:flex;
   align-items:center;
   gap:10px;
-  border-bottom:1px solid #eee;
+  border-top:1px solid #eee;
   padding:10px 0;
 }
 
-.item img { width:60px; border-radius:10px; }
-
-.info { flex:1; }
-
-.actions { display:flex; gap:5px; align-items:center; }
-
-.total { margin-top:20px; font-size:18px; font-weight:bold; }
-
-button {
-  padding:12px;
-  border:none;
-  background:#39FF14;
-  font-weight:bold;
-  border-radius:20px;
-  cursor:pointer;
-}
-
-.modal {
-  position:fixed;
-  top:0; left:0;
-  width:100%; height:100%;
-  background:rgba(0,0,0,0.5);
-  display:none;
-  justify-content:center;
-  align-items:center;
-}
-
-.modal-box {
-  background:white;
-  padding:20px;
+.item img {
+  width:60px;
   border-radius:10px;
-  width:300px;
 }
 
-.modal input {
+/* TOTAL */
+.total {
+  text-align:right;
+  margin-top:10px;
+  font-weight:bold;
+}
+
+/* TRACK BUTTON */
+.track-btn {
+  margin-top:10px;
   width:100%;
-  margin-bottom:10px;
-  padding:8px;
+  padding:10px;
+  border:none;
+  border-radius:12px;
+  font-weight:bold;
+  cursor:pointer;
+  background:#111;
+  color:white;
+  animation:pulse 1.5s infinite;
+  transition:0.2s;
 }
 
-.remove {
-  background:black;
-  color:white;
-  border-radius:50%;
-  width:30px;
-  height:30px;
-  border:none;
-  cursor:pointer;
+.track-btn:hover {
+  transform:scale(1.03);
+}
+
+@keyframes pulse {
+  0% { box-shadow:0 0 0 0 rgba(0,0,0,0.4); }
+  70% { box-shadow:0 0 0 10px rgba(0,0,0,0); }
+  100% { box-shadow:0 0 0 0 rgba(0,0,0,0); }
 }
 </style>
 </head>
 
 <body>
 
-<nav><strong>Cart</strong></nav>
-
 <div class="container">
-
-  <div id="cart">Loading...</div>
-
-  <div class="total" id="total"></div>
-
-  <button onclick="openCheckout()">Checkout</button>
-
-</div>
-
-<!-- MODAL -->
-<div class="modal" id="modal">
-  <div class="modal-box">
-
-    <div style="display:flex;justify-content:space-between;">
-      <h3>Checkout</h3>
-      <span onclick="closeModal()" style="cursor:pointer;">✕</span>
-    </div>
-
-    <input id="name" placeholder="Name">
-    <input id="phone" placeholder="Phone">
-    <input id="address" placeholder="Address">
-
-    <button onclick="confirmCheckout()">Confirm Order</button>
-  </div>
+  <h2>My Orders</h2>
+  <div id="orders">Loading...</div>
 </div>
 
 <script type="module">
 import { supabase } from "./supabase.js"
 
-let cartItems = []
-let selectedItems = []
+function getStatusClass(status){
+  if(status === "paid") return "paid"
+  if(status === "shipped") return "shipped"
+  return "pending"
+}
 
-/* LOAD CART */
-async function loadCart() {
+async function loadOrders(){
 
   const { data: userData } = await supabase.auth.getUser()
+
   if (!userData.user) {
-    document.getElementById("cart").innerText = "Login required"
+    document.getElementById("orders").innerText = "Login required"
     return
   }
 
   const user = userData.user
 
-  const { data, error } = await supabase
-    .from("cart")
+  const { data: orders } = await supabase
+    .from("orders")
     .select("*")
     .eq("user_id", user.id)
-
-  if (error) {
-    document.getElementById("cart").innerText = "Error loading cart"
-    return
-  }
-
-  cartItems = data || []
-
-  if (cartItems.length === 0) {
-    document.getElementById("cart").innerText = "Cart empty"
-    document.getElementById("total").innerText = ""
-    return
-  }
+    .order("created_at", { ascending: false })
 
   let html = ""
-  let total = 0
 
-  for (let item of cartItems) {
-
-    const { data: product } = await supabase
-      .from("products")
-      .select("*")
-      .eq("id", item.product_id)
-      .single()
-
-    if (!product) continue
-
-    total += product.price * item.quantity
+  for (let order of orders){
 
     html += `
-      <div class="item">
-        <input type="checkbox" onchange="toggleItem('${item.id}')">
+      <div class="order">
 
-        <img src="${product.image || ''}">
+        <div class="order-header">
+          <div>
+            <strong>Order #${order.id}</strong><br>
+            <small>${new Date(order.created_at).toLocaleString()}</small>
+          </div>
 
-        <div class="info">
-          <h4>${product.name}</h4>
-          <p>$${product.price}</p>
-          <p>Size: ${item.size}</p>
+          <span class="status ${getStatusClass(order.status)}">
+            ${order.status}
+          </span>
         </div>
-
-        <div class="actions">
-          <input type="number" min="1"
-            value="${item.quantity}"
-            onchange="updateQty('${item.id}', this.value)">
-
-          <button class="remove" onclick="removeItem('${item.id}')">X</button>
-        </div>
-      </div>
     `
-  }
 
-  document.getElementById("cart").innerHTML = html
-  document.getElementById("total").innerText = "Cart total: $" + total
-}
-
-/* UPDATE QTY */
-window.updateQty = async function(id, qty) {
-  await supabase
-    .from("cart")
-    .update({ quantity: Number(qty) })
-    .eq("id", id)
-
-  loadCart()
-}
-
-/* TOGGLE ITEM */
-window.toggleItem = function(id) {
-  if (selectedItems.includes(id)) {
-    selectedItems = selectedItems.filter(i => i !== id)
-  } else {
-    selectedItems.push(id)
-  }
-}
-
-/* REMOVE */
-window.removeItem = async function(id) {
-  await supabase
-    .from("cart")
-    .delete()
-    .eq("id", id)
-
-  loadCart()
-}
-
-/* OPEN MODAL */
-window.openCheckout = async function() {
-
-  if (cartItems.length === 0) return alert("Cart empty")
-
-  const { data: userData } = await supabase.auth.getUser()
-  const user = userData.user
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", user.id)
-    .single()
-
-  document.getElementById("name").value = profile?.full_name || ""
-  document.getElementById("phone").value = profile?.phone || ""
-  document.getElementById("address").value = profile?.address || ""
-
-  document.getElementById("modal").style.display = "flex"
-}
-
-window.closeModal = function() {
-  document.getElementById("modal").style.display = "none"
-}
-
-/* CONFIRM */
-window.confirmCheckout = async function() {
-
-  const name = document.getElementById("name").value
-  const phone = document.getElementById("phone").value
-  const address = document.getElementById("address").value
-
-  const { data: userData } = await supabase.auth.getUser()
-  const user = userData.user
-
-  let itemsToBuy = selectedItems.length
-    ? cartItems.filter(i => selectedItems.includes(i.id))
-    : cartItems
-
-  let total = 0
-
-  for (let item of itemsToBuy) {
-
-    const { data: product } = await supabase
-      .from("products")
+    const { data: items } = await supabase
+      .from("order_items")
       .select("*")
-      .eq("id", item.product_id)
-      .single()
+      .eq("order_id", order.id)
 
-    total += product.price * item.quantity
+    for (let item of items){
+
+      const { data: product } = await supabase
+        .from("products")
+        .select("*")
+        .eq("id", item.product_id)
+        .single()
+
+      html += `
+        <div class="item">
+          <img src="${product.image || ''}">
+          <div>
+            <p><b>${product.name}</b></p>
+            <p>$${item.price} x ${item.quantity}</p>
+            <p>Size: ${item.size || "-"}</p>
+          </div>
+        </div>
+      `
+    }
+
+    html += `
+        <div class="total">
+          Total: $${order.total}
+        </div>
+    `
+
+    /* ✅ TRACKING BUTTON CONDITION */
+    if(order.status === "paid"){
+      html += `
+        <button class="track-btn" onclick="goTracking('${order.id}')">
+          Track Order
+        </button>
+      `
+    }
+
+    html += `</div>`
   }
 
-  const { data: order } = await supabase
-    .from("orders")
-    .insert({
-      user_id: user.id,
-      total,
-      status: "pending",
-      name,
-      phone,
-      address
-    })
-    .select()
-    .single()
-
-  for (let item of itemsToBuy) {
-
-    const { data: product } = await supabase
-      .from("products")
-      .select("*")
-      .eq("id", item.product_id)
-      .single()
-
-    await supabase.from("order_items").insert({
-      order_id: order.id,
-      product_id: item.product_id,
-      quantity: item.quantity,
-      price: product.price,
-      size: item.size
-    })
-  }
-
-  await supabase
-    .from("cart")
-    .delete()
-    .in("id", itemsToBuy.map(i => i.id))
-
-  window.location.href = "order-success.html"
+  document.getElementById("orders").innerHTML =
+    html || "No orders yet"
 }
 
-loadCart()
+/* TRACKING PAGE */
+window.goTracking = function(orderId){
+  window.location.href = "tracking.html?id=" + orderId
+}
+
+loadOrders()
 </script>
 
 </body>

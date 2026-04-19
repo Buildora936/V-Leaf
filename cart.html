@@ -24,9 +24,9 @@ nav { padding:15px 30px; border-bottom:1px solid #eee; }
 
 .info { flex:1; }
 
-.actions { display:flex; gap:5px; }
+.actions { display:flex; gap:5px; align-items:center; }
 
-.total { margin-top:20px; font-size:18px; }
+.total { margin-top:20px; font-size:18px; font-weight:bold; }
 
 button {
   padding:12px;
@@ -37,7 +37,6 @@ button {
   cursor:pointer;
 }
 
-/* MODAL */
 .modal {
   position:fixed;
   top:0; left:0;
@@ -60,12 +59,15 @@ button {
   margin-bottom:10px;
   padding:8px;
 }
+
 .remove {
-  background: black;
-  color: white;
-  border-radius: 50%;
-  width: 30px;
-  height: 30px;
+  background:black;
+  color:white;
+  border-radius:50%;
+  width:30px;
+  height:30px;
+  border:none;
+  cursor:pointer;
 }
 </style>
 </head>
@@ -76,7 +78,7 @@ button {
 
 <div class="container">
 
-  <div id="cart"></div>
+  <div id="cart">Loading...</div>
 
   <div class="total" id="total"></div>
 
@@ -88,7 +90,7 @@ button {
 <div class="modal" id="modal">
   <div class="modal-box">
 
-    <div style="display:flex; justify-content:space-between;">
+    <div style="display:flex;justify-content:space-between;">
       <h3>Checkout</h3>
       <span onclick="closeModal()" style="cursor:pointer;">✕</span>
     </div>
@@ -107,28 +109,39 @@ import { supabase } from "./supabase.js"
 let cartItems = []
 let selectedItems = []
 
-async function loadCart(){
+/* LOAD CART */
+async function loadCart() {
 
   const { data: userData } = await supabase.auth.getUser()
-
-  if(!userData.user){
+  if (!userData.user) {
     document.getElementById("cart").innerText = "Login required"
     return
   }
 
   const user = userData.user
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("cart")
     .select("*")
     .eq("user_id", user.id)
 
+  if (error) {
+    document.getElementById("cart").innerText = "Error loading cart"
+    return
+  }
+
   cartItems = data || []
+
+  if (cartItems.length === 0) {
+    document.getElementById("cart").innerText = "Cart empty"
+    document.getElementById("total").innerText = ""
+    return
+  }
 
   let html = ""
   let total = 0
 
-  for(let item of cartItems){
+  for (let item of cartItems) {
 
     const { data: product } = await supabase
       .from("products")
@@ -136,16 +149,15 @@ async function loadCart(){
       .eq("id", item.product_id)
       .single()
 
-    if(!product) continue
+    if (!product) continue
 
-    const subtotal = product.price * item.quantity
-    total += subtotal
+    total += product.price * item.quantity
 
     html += `
       <div class="item">
         <input type="checkbox" onchange="toggleItem('${item.id}')">
 
-        <img src="${product.image}">
+        <img src="${product.image || ''}">
 
         <div class="info">
           <h4>${product.name}</h4>
@@ -154,11 +166,13 @@ async function loadCart(){
         </div>
 
         <div class="actions">
-  <input type="number" value="${item.quantity}"
-    onchange="updateQty('${item.id}', this.value)">
+          <input type="number" min="1"
+            value="${item.quantity}"
+            onchange="updateQty('${item.id}', this.value)">
 
-  <button class="remove" onclick="removeItem('${item.id}')">X</button>
-</div>
+          <button class="remove" onclick="removeItem('${item.id}')">X</button>
+        </div>
+      </div>
     `
   }
 
@@ -166,16 +180,27 @@ async function loadCart(){
   document.getElementById("total").innerText = "Cart total: $" + total
 }
 
-/* SELECT ITEMS */
-window.toggleItem = function(id){
-  if(selectedItems.includes(id)){
+/* UPDATE QTY */
+window.updateQty = async function(id, qty) {
+  await supabase
+    .from("cart")
+    .update({ quantity: Number(qty) })
+    .eq("id", id)
+
+  loadCart()
+}
+
+/* TOGGLE ITEM */
+window.toggleItem = function(id) {
+  if (selectedItems.includes(id)) {
     selectedItems = selectedItems.filter(i => i !== id)
   } else {
     selectedItems.push(id)
   }
 }
-/* REMOVE ITEMS */
-  window.removeItem = async function(id){
+
+/* REMOVE */
+window.removeItem = async function(id) {
   await supabase
     .from("cart")
     .delete()
@@ -183,13 +208,11 @@ window.toggleItem = function(id){
 
   loadCart()
 }
-/* OPEN MODAL */
-window.openCheckout = async function(){
 
-  if(selectedItems.length === 0){
-    alert("Select items")
-    return
-  }
+/* OPEN MODAL */
+window.openCheckout = async function() {
+
+  if (cartItems.length === 0) return alert("Cart empty")
 
   const { data: userData } = await supabase.auth.getUser()
   const user = userData.user
@@ -206,19 +229,13 @@ window.openCheckout = async function(){
 
   document.getElementById("modal").style.display = "flex"
 }
-window.closeModal = function(){
+
+window.closeModal = function() {
   document.getElementById("modal").style.display = "none"
 }
 
-/* fermer si clic dehors */
-window.onclick = function(e){
-  const modal = document.getElementById("modal")
-  if(e.target === modal){
-    modal.style.display = "none"
-  }
-}
 /* CONFIRM */
-window.confirmCheckout = async function(){
+window.confirmCheckout = async function() {
 
   const name = document.getElementById("name").value
   const phone = document.getElementById("phone").value
@@ -227,10 +244,13 @@ window.confirmCheckout = async function(){
   const { data: userData } = await supabase.auth.getUser()
   const user = userData.user
 
-  let total = 0
-  let itemsToBuy = cartItems.filter(i => selectedItems.includes(i.id))
+  let itemsToBuy = selectedItems.length
+    ? cartItems.filter(i => selectedItems.includes(i.id))
+    : cartItems
 
-  for(let item of itemsToBuy){
+  let total = 0
+
+  for (let item of itemsToBuy) {
 
     const { data: product } = await supabase
       .from("products")
@@ -246,7 +266,7 @@ window.confirmCheckout = async function(){
     .insert({
       user_id: user.id,
       total,
-      status:"pending",
+      status: "pending",
       name,
       phone,
       address
@@ -254,7 +274,7 @@ window.confirmCheckout = async function(){
     .select()
     .single()
 
-  for(let item of itemsToBuy){
+  for (let item of itemsToBuy) {
 
     const { data: product } = await supabase
       .from("products")
@@ -271,43 +291,12 @@ window.confirmCheckout = async function(){
     })
   }
 
-  // remove only selected items
-  for(let id of selectedItems){
-    await supabase.from("cart").delete().eq("id", id)
-  }
+  await supabase
+    .from("cart")
+    .delete()
+    .in("id", itemsToBuy.map(i => i.id))
 
-  // UPDATE PROFILE
-  await supabase.from("profiles").upsert({
-    id: user.id,
-    full_name: name,
-    phone,
-    address
-  })
-
-  // WHATSAPP
-  let msg = `🛒 V~Leaf Order%0A`
-msg += `Order ID: ${order.id}%0A`
-msg += `Name: ${name}%0A`
-msg += `Phone: ${phone}%0A`
-msg += `Address: ${address}%0A%0A`
-
-msg += `Items:%0A`
-
-for(let item of itemsToBuy){
-
-  const { data: product } = await supabase
-    .from("products")
-    .select("*")
-    .eq("id", item.product_id)
-    .single()
-
-  msg += `- ${product.name} | Size: ${item.size} | Qty: ${item.quantity}%0A`
-}
-
-msg += `%0ATotal: $${total}`
-
-  window.location.href =
-    "https://wa.me/50941040511?text=" + msg
+  window.location.href = "orders.html"
 }
 
 loadCart()

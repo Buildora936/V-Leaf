@@ -565,23 +565,27 @@ window.confirmCheckout = async function(){
       return
     }
 
-    const formattedItems =
-      itemsToBuy.map(item => ({
+   const formattedItems =
+  itemsToBuy.map(item => ({
 
-        name:
-          item.products.name,
+    product_id:
+      item.product_id,
 
-        image:
-          item.products.image,
+    name:
+      item.products.name,
 
-        price:
-          Number(item.products.price),
+    image:
+      item.products.image,
 
-        quantity:
-          Number(item.quantity)
-        product_id: item.product_id,
-size: item.size,
-      }))
+    price:
+      Number(item.products.price),
+
+    quantity:
+      Number(item.quantity),
+
+    size:
+      item.size || ""
+}))
 
     const response = await fetch(
       "https://ztqorvunrwztxfcawmik.supabase.co/functions/v1/create-checkout",

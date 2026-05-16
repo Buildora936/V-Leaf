@@ -1,4 +1,4 @@
-  <4!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -6,204 +6,440 @@
 <title>Cart - V~Leaf</title>
 
 <style>
-body { margin:0; font-family:sans-serif; background:#fff; }
 
-nav { padding:15px 30px; border-bottom:1px solid #eee; }
+*{
+  box-sizing:border-box;
+}
 
-.container { padding:30px 10%; }
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,sans-serif;
+  background:#fff;
+  color:#000;
+}
 
-.item {
+/* NAVBAR */
+
+nav{
+  padding:18px 40px;
+  border-bottom:1px solid #eee;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  position:sticky;
+  top:0;
+  background:rgba(255,255,255,0.9);
+  backdrop-filter:blur(10px);
+  z-index:100;
+}
+
+nav strong{
+  font-size:22px;
+}
+
+/* CONTAINER */
+
+.container{
+  padding:40px 10%;
+}
+
+/* CART ITEM */
+
+.item{
+  display:flex;
+  align-items:center;
+  gap:15px;
+  padding:20px;
+  margin-bottom:15px;
+  border-radius:25px;
+  background:#fafafa;
+  transition:0.3s;
+}
+
+.item:hover{
+  transform:translateY(-3px);
+  box-shadow:0 10px 25px rgba(0,0,0,0.05);
+}
+
+.item img{
+  width:90px;
+  height:90px;
+  object-fit:cover;
+  border-radius:20px;
+}
+
+.info{
+  flex:1;
+}
+
+.info h4{
+  margin:0;
+  font-size:18px;
+}
+
+.info p{
+  margin:5px 0;
+  color:#666;
+}
+
+/* ACTIONS */
+
+.actions{
   display:flex;
   align-items:center;
   gap:10px;
-  border-bottom:1px solid #eee;
-  padding:10px 0;
 }
 
-.item img { width:60px; border-radius:10px; }
+.actions input{
+  width:70px;
+  padding:10px;
+  border-radius:12px;
+  border:1px solid #ddd;
+}
 
-.info { flex:1; }
+/* BUTTONS */
 
-.actions { display:flex; gap:5px; align-items:center; }
-
-.total { margin-top:20px; font-size:18px; font-weight:bold; }
-
-button {
-  padding:12px;
+button{
   border:none;
-  background:#39FF14;
-  font-weight:bold;
-  border-radius:20px;
   cursor:pointer;
+  transition:0.3s;
 }
 
-.modal {
+.checkout-btn{
+  margin-top:25px;
+  padding:16px 30px;
+  border-radius:50px;
+  background:#39FF14;
+  color:black;
+  font-weight:bold;
+  font-size:16px;
+}
+
+.checkout-btn:hover{
+  transform:scale(1.03);
+}
+
+.remove{
+  width:35px;
+  height:35px;
+  border-radius:50%;
+  background:black;
+  color:white;
+  font-weight:bold;
+}
+
+/* TOTAL */
+
+.total{
+  margin-top:20px;
+  font-size:22px;
+  font-weight:bold;
+}
+
+/* MODAL */
+
+.modal{
   position:fixed;
-  top:0; left:0;
-  width:100%; height:100%;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
   background:rgba(0,0,0,0.5);
   display:none;
   justify-content:center;
   align-items:center;
-}
-
-.modal-box {
-  background:white;
   padding:20px;
-  border-radius:10px;
-  width:300px;
 }
 
-.modal input {
+.modal-box{
+  background:white;
   width:100%;
-  margin-bottom:10px;
-  padding:8px;
+  max-width:400px;
+  border-radius:25px;
+  padding:25px;
+  animation:fade .3s ease;
 }
 
-.remove {
-  background:black;
-  color:white;
-  border-radius:50%;
-  width:30px;
-  height:30px;
-  border:none;
-  cursor:pointer;
+@keyframes fade{
+  from{
+    opacity:0;
+    transform:translateY(20px);
+  }
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
 }
+
+.modal-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:20px;
+}
+
+.modal-top h3{
+  margin:0;
+}
+
+.close{
+  cursor:pointer;
+  font-size:22px;
+}
+
+/* INPUTS */
+
+.modal input{
+  width:100%;
+  padding:14px;
+  margin-bottom:12px;
+  border-radius:15px;
+  border:1px solid #ddd;
+  outline:none;
+}
+
+.modal input:focus{
+  border-color:#39FF14;
+}
+
+/* CHECKBOX */
+
+.checkbox{
+  width:18px;
+  height:18px;
+}
+
+/* LOADING */
+
+.loading{
+  text-align:center;
+  padding:50px;
+  color:#777;
+}
+
+.empty{
+  text-align:center;
+  padding:50px;
+  color:#999;
+}
+
 </style>
 </head>
 
 <body>
 
-<nav><strong>Cart</strong></nav>
+<nav>
+  <strong>V~Leaf Cart</strong>
+</nav>
 
 <div class="container">
 
-  <div id="cart">Loading...</div>
+  <div id="cart" class="loading">
+    Loading cart...
+  </div>
 
   <div class="total" id="total"></div>
 
-  <button onclick="openCheckout()">Checkout</button>
+  <button class="checkout-btn" onclick="openCheckout()">
+    Checkout
+  </button>
 
 </div>
 
 <!-- MODAL -->
+
 <div class="modal" id="modal">
+
   <div class="modal-box">
 
-    <div style="display:flex;justify-content:space-between;">
+    <div class="modal-top">
       <h3>Checkout</h3>
-      <span onclick="closeModal()" style="cursor:pointer;">✕</span>
+      <span class="close" onclick="closeModal()">✕</span>
     </div>
 
-    <input id="name" placeholder="Name">
-    <input id="phone" placeholder="Phone">
-    <input id="address" placeholder="Address">
+    <input id="name" placeholder="Full name">
 
-    <button onclick="confirmCheckout()">Confirm Order</button>
+    <input id="phone" placeholder="Phone number">
+
+    <input id="address" placeholder="Shipping address">
+
+    <button
+      id="confirmBtn"
+      class="checkout-btn"
+      style="width:100%;"
+      onclick="confirmCheckout()"
+    >
+      Confirm Order
+    </button>
+
   </div>
+
 </div>
 
 <script type="module">
+
 import { supabase } from "./supabase.js"
 
 let cartItems = []
 let selectedItems = []
+let processing = false
 
 /* LOAD CART */
-async function loadCart() {
 
-  const { data: userData } = await supabase.auth.getUser()
-  if (!userData.user) {
-    document.getElementById("cart").innerText = "Login required"
-    return
-  }
+async function loadCart(){
 
-  const user = userData.user
+  try{
 
-  const { data, error } = await supabase
-    .from("cart")
-.select(`
-  *,
-  products(*)
-  `)
-    .eq("user_id", user.id)
+    const { data: userData } = await supabase.auth.getUser()
 
-  if (error) {
-    document.getElementById("cart").innerText = "Error loading cart"
-    return
-  }
+    if(!userData.user){
+      document.getElementById("cart").innerHTML =
+        `<div class="empty">Login required</div>`
+      return
+    }
 
-  cartItems = data || []
+    const user = userData.user
 
-  if (cartItems.length === 0) {
-    document.getElementById("cart").innerText = "Cart empty"
-    document.getElementById("total").innerText = ""
-    return
-  }
+    const { data, error } = await supabase
+      .from("cart")
+      .select(`
+        *,
+        products(*)
+      `)
+      .eq("user_id", user.id)
 
-  let html = ""
-  let total = 0
+    if(error){
+      document.getElementById("cart").innerHTML =
+        `<div class="empty">Error loading cart</div>`
+      return
+    }
 
-  for (let item of cartItems) {
+    cartItems = data || []
 
-    const { data: product } = await supabase
-      .from("products")
-      .select("*")
-      .eq("id", item.product_id)
-      .single()
+    if(cartItems.length === 0){
+      document.getElementById("cart").innerHTML =
+        `<div class="empty">Your cart is empty</div>`
 
-    if (!product) continue
+      document.getElementById("total").innerText = ""
+      return
+    }
 
-    total += product.price * item.quantity
+    let html = ""
+    let total = 0
 
-    html += `
-      <div class="item">
-        <input type="checkbox" onchange="toggleItem('${item.id}')">
+    for(let item of cartItems){
 
-        <img src="${product.image || ''}">
+      const product = item.products
 
-        <div class="info">
-          <h4>${product.name}</h4>
-          <p>$${product.price}</p>
-          <p>Size: ${item.size}</p>
+      /* PRODUCT DELETED */
+
+      if(!product){
+
+        await supabase
+          .from("cart")
+          .delete()
+          .eq("id", item.id)
+
+        continue
+      }
+
+      const price = Number(product.price) || 0
+      const quantity = Number(item.quantity) || 1
+
+      total += price * quantity
+
+      html += `
+        <div class="item">
+
+          <input
+            class="checkbox"
+            type="checkbox"
+            onchange="toggleItem('${item.id}')"
+          >
+
+          <img src="${product.image || ''}">
+
+          <div class="info">
+            <h4>${product.name}</h4>
+            <p>$${price}</p>
+            <p>Size: ${item.size || "-"}</p>
+          </div>
+
+          <div class="actions">
+
+            <input
+              type="number"
+              min="1"
+              value="${quantity}"
+              onchange="updateQty('${item.id}', this.value)"
+            >
+
+            <button
+              class="remove"
+              onclick="removeItem('${item.id}')"
+            >
+              ✕
+            </button>
+
+          </div>
+
         </div>
+      `
+    }
 
-        <div class="actions">
-          <input type="number" min="1"
-            value="${item.quantity}"
-            onchange="updateQty('${item.id}', this.value)">
+    document.getElementById("cart").innerHTML = html
 
-          <button class="remove" onclick="removeItem('${item.id}')">X</button>
-        </div>
-      </div>
-    `
+    document.getElementById("total").innerText =
+      "Cart Total: $" + total.toFixed(2)
+
+  }catch(err){
+
+    console.error(err)
+
+    document.getElementById("cart").innerHTML =
+      `<div class="empty">Unexpected error</div>`
   }
-
-  document.getElementById("cart").innerHTML = html
-  document.getElementById("total").innerText = "Cart total: $" + total
 }
 
-/* UPDATE QTY */
-window.updateQty = async function(id, qty) {
+/* UPDATE QUANTITY */
+
+window.updateQty = async function(id, qty){
+
+  qty = Number(qty)
+
+  if(isNaN(qty) || qty < 1){
+    return alert("Invalid quantity")
+  }
+
   await supabase
     .from("cart")
-    .update({ quantity: Number(qty) })
+    .update({
+      quantity: qty
+    })
     .eq("id", id)
 
   loadCart()
 }
 
-/* TOGGLE ITEM */
-window.toggleItem = function(id) {
-  if (selectedItems.includes(id)) {
-    selectedItems = selectedItems.filter(i => i !== id)
-  } else {
+/* TOGGLE ITEMS */
+
+window.toggleItem = function(id){
+
+  if(selectedItems.includes(id)){
+
+    selectedItems =
+      selectedItems.filter(i => i !== id)
+
+  }else{
+
     selectedItems.push(id)
   }
 }
 
-/* REMOVE */
-window.removeItem = async function(id) {
+/* REMOVE ITEM */
+
+window.removeItem = async function(id){
+
   await supabase
     .from("cart")
     .delete()
@@ -212,12 +448,17 @@ window.removeItem = async function(id) {
   loadCart()
 }
 
-/* OPEN MODAL */
-window.openCheckout = async function() {
+/* OPEN CHECKOUT */
 
-  if (cartItems.length === 0) return alert("Cart empty")
+window.openCheckout = async function(){
 
-  const { data: userData } = await supabase.auth.getUser()
+  if(cartItems.length === 0){
+    return alert("Cart empty")
+  }
+
+  const { data: userData } =
+    await supabase.auth.getUser()
+
   const user = userData.user
 
   const { data: profile } = await supabase
@@ -226,83 +467,160 @@ window.openCheckout = async function() {
     .eq("id", user.id)
     .single()
 
-  document.getElementById("name").value = profile?.full_name || ""
-  document.getElementById("phone").value = profile?.phone || ""
-  document.getElementById("address").value = profile?.address || ""
+  document.getElementById("name").value =
+    profile?.full_name || ""
+
+  document.getElementById("phone").value =
+    profile?.phone || ""
+
+  document.getElementById("address").value =
+    profile?.address || ""
 
   document.getElementById("modal").style.display = "flex"
 }
 
-window.closeModal = function() {
+/* CLOSE MODAL */
+
+window.closeModal = function(){
+
   document.getElementById("modal").style.display = "none"
 }
 
-/* CONFIRM */
-window.confirmCheckout = async function() {
+/* CONFIRM CHECKOUT */
 
-  const name = document.getElementById("name").value
-  const phone = document.getElementById("phone").value
-  const address = document.getElementById("address").value
+window.confirmCheckout = async function(){
 
-  const { data: userData } = await supabase.auth.getUser()
-  const user = userData.user
+  try{
 
-  let itemsToBuy = selectedItems.length
-    ? cartItems.filter(i => selectedItems.includes(i.id))
-    : cartItems
+    if(processing) return
 
-  let total = 0
+    processing = true
 
-  for (let item of itemsToBuy) {
+    const btn =
+      document.getElementById("confirmBtn")
 
-    const { data: product } = await supabase
-      .from("products")
-      .select("*")
-      .eq("id", item.product_id)
-      .single()
+    btn.innerText = "Processing..."
 
-    total += product.price * item.quantity
+    const name =
+      document.getElementById("name").value.trim()
+
+    const phone =
+      document.getElementById("phone").value.trim()
+
+    const address =
+      document.getElementById("address").value.trim()
+
+    if(!name || !phone || !address){
+
+      alert("Please fill all fields")
+
+      processing = false
+      btn.innerText = "Confirm Order"
+
+      return
+    }
+
+    const { data: userData } =
+      await supabase.auth.getUser()
+
+    const user = userData.user
+
+    let itemsToBuy = selectedItems.length
+      ? cartItems.filter(i =>
+          selectedItems.includes(i.id)
+        )
+      : cartItems
+
+    if(itemsToBuy.length === 0){
+
+      alert("No items selected")
+
+      processing = false
+      btn.innerText = "Confirm Order"
+
+      return
+    }
+
+    let total = 0
+
+    for(let item of itemsToBuy){
+
+      const product = item.products
+
+      if(!product) continue
+
+      const price = Number(product.price) || 0
+      const qty = Number(item.quantity) || 1
+
+      total += price * qty
+    }
+
+    const { data: order, error: orderError } =
+      await supabase
+        .from("orders")
+        .insert({
+          user_id: user.id,
+          total,
+          status: "pending",
+          name,
+          phone,
+          address
+        })
+        .select()
+        .single()
+
+    if(orderError){
+
+      alert("Failed to create order")
+
+      processing = false
+      btn.innerText = "Confirm Order"
+
+      return
+    }
+
+    for(let item of itemsToBuy){
+
+      const product = item.products
+
+      if(!product) continue
+
+      await supabase
+        .from("order_items")
+        .insert({
+          order_id: order.id,
+          product_id: item.product_id,
+          quantity: item.quantity,
+          price: product.price,
+          size: item.size
+        })
+    }
+
+    await supabase
+      .from("cart")
+      .delete()
+      .in(
+        "id",
+        itemsToBuy.map(i => i.id)
+      )
+
+    window.location.href = "orders.html"
+
+  }catch(err){
+
+    console.error(err)
+
+    alert("Checkout error")
+
+    processing = false
+
+    document.getElementById("confirmBtn").innerText =
+      "Confirm Order"
   }
-
-  const { data: order } = await supabase
-    .from("orders")
-    .insert({
-      user_id: user.id,
-      total,
-      status: "pending",
-      name,
-      phone,
-      address
-    })
-    .select()
-    .single()
-
-  for (let item of itemsToBuy) {
-
-    const { data: product } = await supabase
-      .from("products")
-      .select("*")
-      .eq("id", item.product_id)
-      .single()
-
-    await supabase.from("order_items").insert({
-      order_id: order.id,
-      product_id: item.product_id,
-      quantity: item.quantity,
-      price: product.price,
-      size: item.size
-    })
-  }
-
-  await supabase
-    .from("cart")
-    .delete()
-    .in("id", itemsToBuy.map(i => i.id))
-
-  window.location.href = "orders.html"
 }
 
 loadCart()
+
 </script>
 
 </body>

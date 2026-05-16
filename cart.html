@@ -290,11 +290,14 @@ async function loadCart(){
 
   try{
 
-    const { data: userData } = await supabase.auth.getUser()
+    const { data: userData } =
+      await supabase.auth.getUser()
 
     if(!userData.user){
+
       document.getElementById("cart").innerHTML =
         `<div class="empty">Login required</div>`
+
       return
     }
 
@@ -309,18 +312,22 @@ async function loadCart(){
       .eq("user_id", user.id)
 
     if(error){
+
       document.getElementById("cart").innerHTML =
         `<div class="empty">Error loading cart</div>`
+
       return
     }
 
     cartItems = data || []
 
     if(cartItems.length === 0){
+
       document.getElementById("cart").innerHTML =
         `<div class="empty">Your cart is empty</div>`
 
       document.getElementById("total").innerText = ""
+
       return
     }
 
@@ -331,7 +338,7 @@ async function loadCart(){
 
       const product = item.products
 
-      /* PRODUCT DELETED */
+      /* PRODUCT REMOVED */
 
       if(!product){
 
@@ -343,8 +350,11 @@ async function loadCart(){
         continue
       }
 
-      const price = Number(product.price) || 0
-      const quantity = Number(item.quantity) || 1
+      const price =
+        Number(product.price) || 0
+
+      const quantity =
+        Number(item.quantity) || 1
 
       total += price * quantity
 
@@ -360,9 +370,16 @@ async function loadCart(){
           <img src="${product.image || ''}">
 
           <div class="info">
+
             <h4>${product.name}</h4>
+
             <p>$${price}</p>
-            <p>Size: ${item.size || "-"}</p>
+
+            <p>
+              Size:
+              ${item.size || "-"}
+            </p>
+
           </div>
 
           <div class="actions">
@@ -371,7 +388,12 @@ async function loadCart(){
               type="number"
               min="1"
               value="${quantity}"
-              onchange="updateQty('${item.id}', this.value)"
+              onchange="
+                updateQty(
+                  '${item.id}',
+                  this.value
+                )
+              "
             >
 
             <button
@@ -387,7 +409,8 @@ async function loadCart(){
       `
     }
 
-    document.getElementById("cart").innerHTML = html
+    document.getElementById("cart").innerHTML =
+      html
 
     document.getElementById("total").innerText =
       "Cart Total: $" + total.toFixed(2)
@@ -408,6 +431,7 @@ window.updateQty = async function(id, qty){
   qty = Number(qty)
 
   if(isNaN(qty) || qty < 1){
+
     return alert("Invalid quantity")
   }
 
@@ -453,6 +477,7 @@ window.removeItem = async function(id){
 window.openCheckout = async function(){
 
   if(cartItems.length === 0){
+
     return alert("Cart empty")
   }
 
@@ -476,17 +501,19 @@ window.openCheckout = async function(){
   document.getElementById("address").value =
     profile?.address || ""
 
-  document.getElementById("modal").style.display = "flex"
+  document.getElementById("modal").style.display =
+    "flex"
 }
 
 /* CLOSE MODAL */
 
 window.closeModal = function(){
 
-  document.getElementById("modal").style.display = "none"
+  document.getElementById("modal").style.display =
+    "none"
 }
 
-/* CONFIRM CHECKOUT */
+/* STRIPE CHECKOUT */
 
 window.confirmCheckout = async function(){
 
@@ -499,7 +526,7 @@ window.confirmCheckout = async function(){
     const btn =
       document.getElementById("confirmBtn")
 
-    btn.innerText = "Processing..."
+    btn.innerText = "Redirecting..."
 
     const name =
       document.getElementById("name").value.trim()
@@ -515,15 +542,11 @@ window.confirmCheckout = async function(){
       alert("Please fill all fields")
 
       processing = false
+
       btn.innerText = "Confirm Order"
 
       return
     }
-
-    const { data: userData } =
-      await supabase.auth.getUser()
-
-    const user = userData.user
 
     let itemsToBuy = selectedItems.length
       ? cartItems.filter(i =>
@@ -536,75 +559,63 @@ window.confirmCheckout = async function(){
       alert("No items selected")
 
       processing = false
+
       btn.innerText = "Confirm Order"
 
       return
     }
 
-    let total = 0
+    const formattedItems =
+      itemsToBuy.map(item => ({
 
-    for(let item of itemsToBuy){
+        name:
+          item.products.name,
 
-      const product = item.products
+        image:
+          item.products.image,
 
-      if(!product) continue
+        price:
+          Number(item.products.price),
 
-      const price = Number(product.price) || 0
-      const qty = Number(item.quantity) || 1
+        quantity:
+          Number(item.quantity)
+      }))
 
-      total += price * qty
-    }
+    const response = await fetch(
+      "https://ztqorvunrwztxfcawmik.supabase.co/functions/v1/create-checkout",
+      {
+        method: "POST",
 
-    const { data: order, error: orderError } =
-      await supabase
-        .from("orders")
-        .insert({
-          user_id: user.id,
-          total,
-          status: "pending",
-          name,
-          phone,
-          address
+        headers: {
+          "Content-Type":
+            "application/json"
+        },
+
+        body: JSON.stringify({
+          items: formattedItems
         })
-        .select()
-        .single()
+      }
+    )
 
-    if(orderError){
+    const data =
+      await response.json()
 
-      alert("Failed to create order")
+    if(data.url){
+
+      window.location.href =
+        data.url
+
+    }else{
+
+      console.error(data)
+
+      alert("Stripe checkout failed")
 
       processing = false
-      btn.innerText = "Confirm Order"
 
-      return
+      btn.innerText =
+        "Confirm Order"
     }
-
-    for(let item of itemsToBuy){
-
-      const product = item.products
-
-      if(!product) continue
-
-      await supabase
-        .from("order_items")
-        .insert({
-          order_id: order.id,
-          product_id: item.product_id,
-          quantity: item.quantity,
-          price: product.price,
-          size: item.size
-        })
-    }
-
-    await supabase
-      .from("cart")
-      .delete()
-      .in(
-        "id",
-        itemsToBuy.map(i => i.id)
-      )
-
-    window.location.href = "orders.html"
 
   }catch(err){
 
@@ -622,6 +633,5 @@ window.confirmCheckout = async function(){
 loadCart()
 
 </script>
-
 </body>
 </html>

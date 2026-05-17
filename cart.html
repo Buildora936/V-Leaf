@@ -543,10 +543,16 @@ window.confirmCheckout = async function(){
 
       processing = false
 
-      btn.innerText = "Confirm Order"
+      btn.innerText =
+        "Confirm Order"
 
       return
     }
+
+    const { data: userData } =
+      await supabase.auth.getUser()
+
+    const user = userData.user
 
     let itemsToBuy = selectedItems.length
       ? cartItems.filter(i =>
@@ -560,32 +566,34 @@ window.confirmCheckout = async function(){
 
       processing = false
 
-      btn.innerText = "Confirm Order"
+      btn.innerText =
+        "Confirm Order"
 
       return
     }
 
-   const formattedItems =
-  itemsToBuy.map(item => ({
+    const formattedItems =
+      itemsToBuy.map(item => ({
 
-    product_id:
-      item.product_id,
+        product_id:
+          item.product_id,
 
-    name:
-      item.products.name,
+        name:
+          item.products.name,
 
-    image:
-      item.products.image,
+        image:
+          item.products.image,
 
-    price:
-      Number(item.products.price),
+        price:
+          Number(item.products.price),
 
-    quantity:
-      Number(item.quantity),
+        quantity:
+          Number(item.quantity),
 
-    size:
-      item.size || ""
-}))
+        size:
+          item.size || ""
+
+      }))
 
     const response = await fetch(
       "https://ztqorvunrwztxfcawmik.supabase.co/functions/v1/create-checkout",
@@ -598,13 +606,26 @@ window.confirmCheckout = async function(){
         },
 
         body: JSON.stringify({
-          items: formattedItems
+
+          user_id:
+            user.id,
+
+          customer: {
+            name,
+            phone,
+            address
+          },
+
+          items:
+            formattedItems
         })
       }
     )
 
     const data =
       await response.json()
+
+    console.log(data)
 
     if(data.url){
 
@@ -615,7 +636,10 @@ window.confirmCheckout = async function(){
 
       console.error(data)
 
-      alert("Stripe checkout failed")
+      alert(
+        data.error ||
+        "Stripe checkout failed"
+      )
 
       processing = false
 

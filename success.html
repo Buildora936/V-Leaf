@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>Payment Success - V~Leaf</title>
+
+<style>
+
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,sans-serif;
+  background:black;
+  color:white;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+  overflow:hidden;
+}
+
+/* BACKGROUND */
+
+.bg{
+
+  position:fixed;
+  inset:0;
+
+  background:
+  radial-gradient(
+    circle at top,
+    #39FF14 0%,
+    transparent 35%
+  );
+
+  opacity:0.15;
+}
+
+/* CARD */
+
+.card{
+
+  position:relative;
+
+  width:90%;
+  max-width:500px;
+
+  background:
+  rgba(255,255,255,0.05);
+
+  border:
+  1px solid rgba(255,255,255,0.08);
+
+  backdrop-filter:blur(20px);
+
+  border-radius:35px;
+
+  padding:50px 35px;
+
+  text-align:center;
+
+  z-index:10;
+
+  animation:fade 0.8s ease;
+}
+
+@keyframes fade{
+
+  from{
+    opacity:0;
+    transform:translateY(40px);
+  }
+
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+
+/* CHECK ICON */
+
+.check{
+
+  width:110px;
+  height:110px;
+
+  margin:auto;
+  margin-bottom:25px;
+
+  border-radius:50%;
+
+  background:#39FF14;
+
+  display:flex;
+  justify-content:center;
+  align-items:center;
+
+  color:black;
+
+  font-size:55px;
+  font-weight:bold;
+
+  animation:pulse 2s infinite;
+}
+
+@keyframes pulse{
+
+  0%{
+    transform:scale(1);
+  }
+
+  50%{
+    transform:scale(1.05);
+  }
+
+  100%{
+    transform:scale(1);
+  }
+}
+
+h1{
+  margin:0;
+  font-size:42px;
+}
+
+p{
+
+  color:#bbb;
+
+  line-height:1.7;
+
+  margin-top:15px;
+}
+
+/* BUTTONS */
+
+.buttons{
+
+  display:flex;
+  gap:15px;
+
+  margin-top:35px;
+
+  justify-content:center;
+
+  flex-wrap:wrap;
+}
+
+.btn{
+
+  padding:16px 28px;
+
+  border:none;
+
+  border-radius:50px;
+
+  cursor:pointer;
+
+  font-weight:bold;
+
+  font-size:15px;
+
+  transition:0.3s;
+}
+
+.btn:hover{
+  transform:translateY(-3px);
+}
+
+.primary{
+
+  background:#39FF14;
+  color:black;
+}
+
+.secondary{
+
+  background:white;
+  color:black;
+}
+
+/* SMALL */
+
+.small{
+
+  margin-top:25px;
+
+  color:#777;
+
+  font-size:13px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="bg"></div>
+
+<div class="card">
+
+  <div class="check">
+    ✓
+  </div>
+
+  <h1>Payment Successful</h1>
+
+  <p>
+
+    Your V~Leaf order has been confirmed.
+
+    Our team is preparing your products
+    for shipping.
+
+  </p>
+
+  <div class="buttons">
+
+    <button
+      class="btn primary"
+      onclick="
+      window.location.href='orders.html'
+      "
+    >
+      View Orders
+    </button>
+
+    <button
+      class="btn secondary"
+      onclick="
+      window.location.href='shop.html'
+      "
+    >
+      Continue Shopping
+    </button>
+
+  </div>
+
+  <div class="small">
+
+    V~Leaf Premium Experience
+
+  </div>
+
+</div>
+
+</body>
+</html>

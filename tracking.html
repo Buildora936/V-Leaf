@@ -140,11 +140,23 @@ let currentOrder = null
 
 async function loadTracking(){
 
-  const { data } = await supabase
-    .from("orders")
-    .select("*")
-    .eq("id", orderId)
-    .single()
+  const { data: userData } =
+  await supabase.auth.getUser()
+
+if(!userData.user){
+
+  location.href = "login.html"
+  return
+}
+
+const user = userData.user
+
+const { data } = await supabase
+  .from("orders")
+  .select("*")
+  .eq("id", orderId)
+  .eq("user_id", user.id)
+  .single()
 
   if(!data){
     document.getElementById("tracking").innerHTML = "Order not found"
